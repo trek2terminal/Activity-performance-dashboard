@@ -38,27 +38,39 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
 .btn-sm{padding:7px 9px;font-size:10px}
 
 /* landing */
-#landing{min-height:100vh;position:relative;z-index:1;overflow:hidden}
-.landing-top{min-height:76px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:relative;z-index:2}
-.landing-logo{width:150px;height:54px;object-fit:contain;object-position:left center;transition:transform .25s ease}.landing-logo:hover{transform:translateY(-1px)}
+#landing{min-height:100vh;position:relative;z-index:1;overflow:hidden;background:var(--bg2)}
+.landing-top{min-height:76px;background:rgba(255,255,255,.78);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 34px;position:relative;z-index:2}
+html[data-theme=dark] .landing-top{background:rgba(11,19,31,.75)}
+.landing-logo{width:170px;height:42px;object-fit:contain;object-position:left center;transition:transform .25s ease}.landing-logo:hover{transform:translateY(-1px)}
 .theme-control{display:flex;gap:8px;align-items:center}.theme-label{font-size:11px;color:var(--text2);font-weight:700}
-.hero{max-width:1240px;margin:auto;padding:68px 22px 120px;display:grid;grid-template-columns:1.05fr .95fr;gap:62px;align-items:center;position:relative;z-index:1}
-.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--blue);font-weight:900}
-.hero h1{font-family:var(--display);font-size:clamp(40px,5vw,64px);line-height:1.01;letter-spacing:-.055em;margin:12px 0 17px;color:var(--text)}
-.hero h1 span{color:var(--blue)}
-.hero p{font-size:16px;line-height:1.7;color:var(--text2);max-width:680px;margin:0}
-.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:23px}.pill{padding:7px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:10.5px;font-weight:800;box-shadow:var(--shadow2)}
-.upload-card{background:linear-gradient(145deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:18px;padding:23px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.upload-card:after{content:"";position:absolute;right:-80px;top:-80px;width:220px;height:220px;border-radius:50%;border:32px solid color-mix(in srgb,var(--blue) 7%,transparent);pointer-events:none}
-.upload-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:15px}.upload-title h2{margin:0;font-family:var(--display);font-size:19px}.local{font-size:9px;color:var(--green);font-weight:900;border:1px solid color-mix(in srgb,var(--green) 35%,var(--border));background:color-mix(in srgb,var(--green) 8%,transparent);padding:5px 8px;border-radius:999px}
-.dropzone{border:1.5px dashed var(--border);border-radius:13px;padding:42px 20px;text-align:center;background:color-mix(in srgb,var(--surface2) 80%,transparent);transition:var(--transition)}
-.dropzone:hover,.dropzone.drag{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,var(--surface2));transform:translateY(-2px)}
-.upload-icon{width:60px;height:60px;border-radius:16px;margin:0 auto 14px;background:color-mix(in srgb,var(--blue) 12%,var(--surface2));display:grid;place-items:center;color:var(--blue);font-size:28px;animation:floatIcon 3.2s ease-in-out infinite}
+.hero{max-width:1360px;margin:0 auto;padding:64px 28px 100px;display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center;position:relative;z-index:1}
+.hero-left{position:relative;padding:20px 0 10px}
+.hero-left:before{content:"";position:absolute;right:24px;top:18px;width:430px;height:430px;border-radius:50%;background:color-mix(in srgb,var(--blue) 9%,transparent);border:1px solid color-mix(in srgb,var(--blue) 18%,transparent);box-shadow:inset 0 0 0 26px color-mix(in srgb,var(--blue) 6%,transparent)}
+.hero-left:after{content:"";position:absolute;right:110px;top:110px;width:250px;height:250px;border-radius:50%;background:transparent;border:28px solid color-mix(in srgb,var(--blue) 10%,transparent);opacity:.9}
+.hero-copy{position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;padding:10px 0 0;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);font-weight:900}
+.eyebrow:before{content:"";display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px color-mix(in srgb,var(--orange) 15%,transparent)}
+.hero h1{font-family:var(--display);font-size:clamp(42px,4vw,77px);line-height:0.98;letter-spacing:-.06em;margin:18px 0 20px;color:var(--text)}
+.hero h1 span{display:block;color:var(--blue)}
+.hero p{font-size:16px;line-height:1.6;color:var(--text2);max-width:690px;margin:0}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}.pill{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.3);color:var(--text2);font-size:11px;font-weight:800;box-shadow:0 4px 8px rgba(23,78,124,.04)}
+.upload-card{background:rgba(255,255,255,.66);border:1px solid var(--border);border-radius:18px;padding:24px 24px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:max-height .45s ease,padding .45s ease,opacity .35s ease,transform .35s ease;backdrop-filter:blur(12px)}
+html[data-theme=dark] .upload-card{background:rgba(18,31,44,.82)}
+.upload-card:after{content:"";position:absolute;right:-85px;top:-85px;width:220px;height:220px;border-radius:50%;border:28px solid color-mix(in srgb,var(--blue) 9%,transparent);pointer-events:none}
+.upload-card.collapsed{max-height:42px;padding:8px 12px;opacity:.9;transform:translateY(-2px)}
+.upload-card.collapsed .upload-title{margin-bottom:0}
+.upload-card.collapsed .upload-title h2{font-size:12px}
+.upload-card.collapsed .upload-title .local{display:none}
+.upload-card.collapsed .dropzone,.upload-card.collapsed .upload-meta{max-height:0;opacity:0;margin:0;padding:0;border-width:0;overflow:hidden;pointer-events:none;transform:translateY(-8px)}
+.upload-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.upload-title h2{margin:0;font-family:var(--display);font-size:18px;color:var(--text);font-weight:700}.local{font-size:9px;color:var(--green);font-weight:900;border:1px solid color-mix(in srgb,var(--green) 35%,var(--border));background:color-mix(in srgb,var(--green) 6%,transparent);padding:5px 9px;border-radius:999px}
+.dropzone{border:1.5px dashed var(--border);border-radius:13px;padding:32px 20px 18px;text-align:center;background:rgba(255,255,255,.1);transition:max-height .35s ease,opacity .35s ease,padding .35s ease,transform .35s ease,border-color var(--transition),background var(--transition)}
+.dropzone:hover,.dropzone.drag{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,transparent);transform:translateY(-2px)}
+.upload-icon{width:52px;height:52px;border-radius:12px;margin:0 auto 14px;background:color-mix(in srgb,var(--blue) 12%,var(--surface2));display:grid;place-items:center;color:var(--blue);font-size:24px;animation:floatIcon 3.2s ease-in-out infinite}
 @keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.dropzone h3{margin:0;color:var(--text);font-family:var(--display);font-size:18px}.dropzone p{margin:6px 0 18px;color:var(--muted);font-size:11px}
-.upload-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}.meta{border:1px solid var(--border2);background:var(--surface2);border-radius:8px;padding:9px 5px;text-align:center;font-size:9px;color:var(--text2);font-weight:700}
-.wave{position:absolute;bottom:-10px;left:-5%;width:110%;height:92px;background:var(--blue2);clip-path:ellipse(67% 86% at 50% 100%);opacity:.95}.wave2{position:absolute;bottom:-3px;right:-5%;width:62%;height:48px;background:#f59d16;clip-path:ellipse(65% 90% at 50% 100%);opacity:.95}
-
+.dropzone h3{margin:0;color:var(--text);font-family:var(--display);font-size:18px;font-weight:700}.dropzone p{margin:6px 0 16px;color:var(--text2);font-size:11px;line-height:1.5}
+.dropzone .btn-primary{padding:10px 18px;border-radius:10px;font-size:12px}
+.upload-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px;transition:max-height .35s ease,opacity .35s ease,padding .35s ease}.meta{border:1px solid var(--border2);background:rgba(255,255,255,.18);border-radius:8px;padding:9px 5px;text-align:center;font-size:9px;color:var(--text2);font-weight:700}
+html[data-theme=dark] .meta{background:rgba(15,29,42,.8)}
 /* dashboard shell */
 #dashboard{position:relative;z-index:1;animation:dashIn .45s cubic-bezier(.2,.8,.2,1)}
 @keyframes dashIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -89,12 +101,6 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
 .filter-box{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.filter-box select{width:100%;min-height:32px;border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);padding:6px 7px;font-size:9.5px}.filter-box select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 9%,transparent)}
 .footer{text-align:right;color:var(--muted);font-size:8.5px;padding:8px 2px 20px;letter-spacing:.04em}
 
-/* detailed view */
-.detail-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}.detail-card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:13px;box-shadow:var(--shadow2)}.detail-card h3{margin:0;font-family:var(--display);font-size:13px}.detail-card p{margin:3px 0;color:var(--muted);font-size:9.5px}.filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:11px}.filter-grid label{display:block;color:var(--muted);font-size:8.5px;text-transform:uppercase;font-weight:900;margin-bottom:4px}.filter-grid select,.filter-grid input{width:100%;min-height:34px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:7px;padding:6px 8px;font-size:9.5px}.data-table{margin-top:11px;overflow:auto;border:1px solid var(--border);border-radius:10px}.data-table table{min-width:950px;width:100%;border-collapse:collapse}.data-table th{background:var(--surface2);padding:8px;text-align:left;color:var(--muted);font-size:8px;text-transform:uppercase}.data-table td{padding:7px 8px;border-top:1px solid var(--border2);font-size:9px;white-space:nowrap}.quality{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.q{border:1px solid var(--border);background:var(--surface2);border-radius:8px;padding:8px}.q b{font-size:15px}.q span{display:block;color:var(--muted);font-size:8px;margin-top:2px}
-
-/* animations */
-.reveal{animation:reveal .5s cubic-bezier(.2,.8,.2,1) both}.reveal:nth-child(2){animation-delay:.04s}.reveal:nth-child(3){animation-delay:.08s}.reveal:nth-child(4){animation-delay:.12s}.reveal:nth-child(5){animation-delay:.16s}
-@keyframes reveal{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading{position:fixed;inset:0;z-index:300;display:none;place-items:center;background:rgba(3,10,19,.55);backdrop-filter:blur(8px)}.loading.show{display:grid}.load-card{width:min(430px,calc(100% - 30px));background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}.spinner{width:19px;height:19px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}.load-head{display:flex;align-items:center;gap:9px;font-weight:900}.load-msg{font-size:10px;color:var(--text2);margin-top:7px}.progress{height:6px;background:var(--surface3);border-radius:99px;margin-top:13px;overflow:hidden}.progress i{display:block;height:100%;width:15%;background:linear-gradient(90deg,var(--blue2),var(--blue));border-radius:99px;transition:width .3s ease}
 .toast{position:fixed;right:18px;bottom:18px;z-index:400;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:11px;padding:11px 13px;width:min(370px,calc(100vw - 36px));transform:translateY(20px);opacity:0;pointer-events:none;transition:.35s ease}.toast.show{transform:none;opacity:1}.toast b{font-size:10.5px}.toast span{display:block;color:var(--text2);font-size:9.5px;margin-top:2px}
@@ -113,27 +119,30 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
     <div class="theme-control">
       <span class="theme-label" id="landingThemeText">Light theme</span>
       <button class="btn btn-sm" id="landingThemeBtn">◐ Theme</button>
+      <button class="btn btn-sm btn-primary" id="uploadTopBtn">↑ Upload Excel</button>
     </div>
   </header>
   <div class="hero">
-    <div>
-      <div class="eyebrow">Yitran Smart Metering</div>
-      <h1>Account Activity<br><span>Performance Dashboard</span></h1>
-      <p>Upload the latest Excel report and transform the raw account activity data into a management dashboard matching the visual hierarchy, KPI structure and analytical detail provided by your manager.</p>
-      <div class="pills">
-        <span class="pill">Monthly Activity Trend</span>
-        <span class="pill">Monthly Contribution</span>
-        <span class="pill">Top 10 Performers</span>
-        <span class="pill">Performance Heatmap</span>
-        <span class="pill">Activity Distribution</span>
-        <span class="pill">MoM Change</span>
+    <div class="hero-left">
+      <div class="hero-copy">
+        <div class="eyebrow">Yitran Smart Metering</div>
+        <h1>Account Activity<br><span>Performance Dashboard</span></h1>
+        <p>Upload the latest Excel report and transform the raw account activity data into a management dashboard matching the visual hierarchy, KPI structure and analytical detail provided by your manager.</p>
+        <div class="pills">
+          <span class="pill">Monthly Activity Trend</span>
+          <span class="pill">Monthly Contribution</span>
+          <span class="pill">Top 10 Performers</span>
+          <span class="pill">Performance Heatmap</span>
+          <span class="pill">Activity Distribution</span>
+          <span class="pill">MoM Change</span>
+        </div>
       </div>
     </div>
-    <div class="upload-card">
+    <div class="upload-card collapsed">
       <div class="upload-title"><h2>Load your Excel report</h2><span class="local">✓ Browser only</span></div>
       <div class="dropzone" id="dropzone">
         <div class="upload-icon">⇧</div>
-        <h3>Drag & drop your Excel file here</h3>
+        <h3>Drag &amp; drop your Excel file here</h3>
         <p>or browse from your computer<br>.XLSX / .XLS</p>
         <input id="fileInput" type="file" accept=".xlsx,.xls" hidden>
         <button class="btn btn-primary" id="browseBtn">Browse Excel File</button>
@@ -142,7 +151,6 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
       <div class="upload-meta"><div class="meta">Automatic calculations</div><div class="meta">Interactive filters</div><div class="meta">Light / Dark theme</div></div>
     </div>
   </div>
-  <div class="wave"></div><div class="wave2"></div>
 </section>
 
 <!-- DASHBOARD -->
@@ -178,9 +186,8 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
       </div>
     </div>
 
-    <div class="pages">
+    <div class="pages" style="display:none">
       <button class="page-btn active" data-page="operations">Operations Summary</button>
-      <button class="page-btn" data-page="detailed">Detailed View</button>
     </div>
 
     <div id="operationsPage">
@@ -216,27 +223,6 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
       <div class="footer">BETTER INSIGHTS &nbsp; | &nbsp; SMARTER DECISIONS &nbsp; | &nbsp; GREATER IMPACT</div>
     </div>
 
-    <div id="detailedPage" class="hidden reference-page">
-      <div class="ref-head"><div><h1>Detailed Activity View</h1><p>Search, filter and inspect the uploaded installation records.</p></div></div>
-      <div class="detail-grid">
-        <div class="detail-card">
-          <h3>Detailed filters</h3><p>Use the controls below to narrow the records without changing the source workbook.</p>
-          <div class="filter-grid">
-            <div><label>Sub-Division</label><select id="dSub"><option>All</option></select></div>
-            <div><label>Installed By</label><select id="dInst"><option>All</option></select></div>
-            <div><label>Phase</label><select id="dPhase"><option>All</option></select></div>
-            <div><label>Meter Type</label><select id="dMeter"><option>All</option></select></div>
-            <div style="grid-column:1/-1"><label>Search Account / Installer / Meter</label><input id="dSearch" placeholder="Type to search..."></div>
-          </div>
-        </div>
-        <div class="detail-card">
-          <h3>Data Quality Snapshot</h3><p>Basic checks based on fields available in the workbook.</p>
-          <div class="quality"><div class="q"><b id="qRows">0</b><span>Filtered records</span></div><div class="q"><b id="qMissingDate">0</b><span>Missing installation time</span></div><div class="q"><b id="qMissingInstaller">0</b><span>Missing installer</span></div></div>
-        </div>
-      </div>
-      <div class="data-table"><table><thead><tr><th>Account No</th><th>Installed By</th><th>Sub-Division</th><th>Installed Time</th><th>Phase</th><th>Meter Type</th></tr></thead><tbody id="detailBody"></tbody></table></div>
-      <div class="footer">Detailed view shows the filtered source records. Uploading a new workbook replaces the current dataset.</div>
-    </div>
   </div>
 </section>
 
@@ -284,7 +270,6 @@ function getFilteredRows(){
 function setSelect(id,values,label){const s=$(id);if(!s)return;const old=s.value;s.innerHTML='<option value="All">'+label+'</option>'+values.sort((a,b)=>String(a).localeCompare(String(b))).map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join("");if(values.includes(old))s.value=old}
 function populateFilters(){
   setSelect("filterSub",[...new Set(allRows.map(r=>r.sub))],"All Sub-Divisions");setSelect("filterInst",[...new Set(allRows.map(r=>r.inst))],"All Installers");setSelect("filterPhase",[...new Set(allRows.map(r=>r.phase))],"All Phases");setSelect("filterMeter",[...new Set(allRows.map(r=>r.meter))],"All Meter Types");
-  setSelect("dSub",[...new Set(allRows.map(r=>r.sub))],"All");setSelect("dInst",[...new Set(allRows.map(r=>r.inst))],"All");setSelect("dPhase",[...new Set(allRows.map(r=>r.phase))],"All");setSelect("dMeter",[...new Set(allRows.map(r=>r.meter))],"All");
 }
 function itemSummary(rows){
   const total=rows.length, unique=new Set(rows.map(r=>r.account).filter(Boolean)).size;
@@ -320,19 +305,27 @@ function renderDashboard(rows){
   $("insights").innerHTML=`<li>Total account activity is <b>${fmt(c.total)}</b> across <b>${c.months.length}</b> active months.</li><li><b>${esc(monthLabel(c.peak[0]))}</b> is the peak month with <b>${fmt(c.peak[1])}</b> activities.</li><li><b>${esc(top[0])}</b> is the highest-volume performer with <b>${fmt(top[1])}</b> activities.</li><li>The top three contributors generated <b>${((c.top3/total)*100).toFixed(1)}%</b> of total activity.</li><li><b>${esc(topSub[0])}</b> has the highest sub-division activity with <b>${fmt(topSub[1])}</b> records.</li><li>Peak daily activity was <b>${fmt(c.peakDay[1])}</b> records on <b>${pd}</b>.</li>`;
   $("mom").innerHTML=c.months.map((m,i)=>{const cur=c.mc[m],prev=i?c.mc[c.months[i-1]]:0,pct=i&&prev?((cur-prev)/prev*100):null;return `<div class="mom-card"><small>${monthLabel(m)}</small><b>${fmt(cur)}</b><span class="${pct===null?"":pct>=0?"up":"down"}">${pct===null?"—":(pct>=0?"▲ ":"▼ ")+Math.abs(pct).toFixed(1)+"%"}</span></div>`}).join("");
 }
-function renderDetailed(){
-  const sub=$("dSub").value,inst=$("dInst").value,phase=$("dPhase").value,meter=$("dMeter").value,q=norm($("dSearch").value);
-  const rows=allRows.filter(r=>(sub==="All"||r.sub===sub)&&(inst==="All"||r.inst===inst)&&(phase==="All"||r.phase===phase)&&(meter==="All"||r.meter===meter)&&(!q||[r.account,r.inst,r.sub,r.phase,r.meter].some(v=>norm(v).includes(q))));
-  $("qRows").textContent=fmt(rows.length);$("qMissingDate").textContent=fmt(rows.filter(r=>!r.dt).length);$("qMissingInstaller").textContent=fmt(rows.filter(r=>!r.inst||r.inst==="Unknown").length);
-  $("detailBody").innerHTML=rows.slice(0,1000).map(r=>`<tr><td>${esc(r.account)}</td><td>${esc(r.inst)}</td><td>${esc(r.sub)}</td><td>${r.dt?esc(r.dt.toLocaleString("en-IN")):"—"}</td><td>${esc(r.phase)}</td><td>${esc(r.meter)}</td></tr>`).join("");
-}
 function setPage(page){
+  if(page!=="operations")return;
   document.querySelectorAll(".page-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
-  $("operationsPage").classList.toggle("hidden",page!=="operations");$("detailedPage").classList.toggle("hidden",page!=="detailed");
-  if(page==="operations")renderDashboard(getFilteredRows());else renderDetailed();window.scrollTo({top:0,behavior:"smooth"});
+  $("operationsPage").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+let uploadCollapseTimer=null;
+function setupUploadPeek(){
+  const card=document.querySelector(".upload-card");
+  if(!card||card.dataset.peekBound==="true")return;
+  card.dataset.peekBound="true";
+  card.classList.remove("collapsed");
+}
+function autoCollapseUpload(){
+  const card=document.querySelector(".upload-card");
+  if(!card)return;
+  clearTimeout(uploadCollapseTimer);
+  card.classList.remove("collapsed");
 }
 function showDashboard(){ $("landing").classList.add("hidden");$("dashboard").classList.remove("hidden");window.scrollTo(0,0)}
-function showLanding(){ $("dashboard").classList.add("hidden");$("landing").classList.remove("hidden");window.scrollTo(0,0)}
+function showLanding(){ $("dashboard").classList.add("hidden");$("landing").classList.remove("hidden");window.scrollTo(0,0);autoCollapseUpload();}
 function clearAll(){allRows=[];currentFileName="";$("fileChip").style.display="none";showLanding();showToast("Dashboard cleared","Load another workbook to begin again.")}
 function loadWorkbook(file){
   if(!file)return;if(file.size>35*1024*1024){alert("Please use an Excel workbook smaller than 35 MB.");return}
@@ -359,13 +352,13 @@ function initPreview(){
   allRows=[];for(const m of DEFAULT.months){for(let i=0;i<m.count;i++)allRows.push({account:"",inst:DEFAULT.top10[i%DEFAULT.top10.length]?.name||"Installer",sub:DEFAULT.sub[i%DEFAULT.sub.length]?.name||"Sub-Division",phase:DEFAULT.phase[i%DEFAULT.phase.length]?.name||"Blank",meter:"Preview",dt:new Date(m.month+"-15T12:00:00")})}
   currentFileName="Preview of supplied workbook";$("fileName").textContent=currentFileName;$("fileChip").style.display="flex";populateFilters();renderDashboard(allRows);
 }
-$("browseBtn").onclick=()=>$("fileInput").click();$("fileInput").onchange=e=>loadWorkbook(e.target.files[0]);$("changeFileBtn").onclick=()=>$("fileInput").click();$("clearBtn").onclick=clearAll;
+setupUploadPeek();autoCollapseUpload();
+$("browseBtn").onclick=()=>$("fileInput").click();$("uploadTopBtn").onclick=()=>$("fileInput").click();$("fileInput").onchange=e=>loadWorkbook(e.target.files[0]);$("changeFileBtn").onclick=()=>$("fileInput").click();$("clearBtn").onclick=clearAll;
 ["dragenter","dragover"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault();$("dropzone").classList.add("drag")}));
 ["dragleave","drop"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault();$("dropzone").classList.remove("drag")}));
 $("dropzone").addEventListener("drop",e=>loadWorkbook(e.dataTransfer.files[0]));
 document.querySelectorAll(".page-btn").forEach(b=>b.onclick=()=>setPage(b.dataset.page));
 ["filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).addEventListener("change",()=>renderDashboard(getFilteredRows())));
-["dSub","dInst","dPhase","dMeter","dSearch"].forEach(id=>$(id).addEventListener("input",renderDetailed));
 setupTheme();initPreview();
 </script>
 </body>
