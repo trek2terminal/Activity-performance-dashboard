@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-html{font-size:clamp(13px,min(calc(.5vw + 8.8px),calc(1.1vh + 7px)),30px);-webkit-text-size-adjust:100%}
+html{font-size:clamp(13px,min(calc(.5vw + 8.8px),calc(1.1vh + 7px)),30px);-webkit-text-size-adjust:100%;scrollbar-gutter:stable}
 :root{
  --bg:#0a1422;--bg2:#0e1b2c;--surface:#112235;--surface2:#162b43;--surface3:#1d3854;
  --border:#2c4965;--border2:#203952;--text:#f5f8fc;--text2:#b6c5d5;--muted:#8ca0b5;
@@ -91,6 +91,8 @@ html[data-theme=dark] .meta{background:rgba(15,29,42,.8)}
 .live-chip{box-sizing:border-box;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:1.45rem .5rem 3px;align-items:center;gap:.08rem .45rem;width:min(11rem,24vw);height:2.95rem;min-width:8.5rem;max-width:11rem;align-self:center;flex:none;overflow:visible;padding:.2rem .45rem;border:1px solid var(--border);border-radius:.65rem;background:var(--surface2);color:var(--text2);font-size:.65rem;line-height:1.2}
 .live-chip[hidden]{display:none}
 .live-state{display:flex;align-items:center;gap:.3rem;color:var(--red);font-weight:900;letter-spacing:.08em}
+.live-chip[data-state=manual] .live-state{color:var(--muted)}
+.live-state small{font-size:.55rem;font-weight:700;letter-spacing:0;color:var(--text2)}
 .live-state .pulse{width:.45rem;height:.45rem;border-radius:50%;background:var(--red);flex:none;animation:freshPulse 1.3s ease-in-out infinite}
 .live-view-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800;color:var(--text)}
 .live-toggle{display:grid;place-items:center;width:1.4rem;height:1.4rem;padding:0;border:1px solid var(--border);border-radius:.4rem;background:var(--surface);color:var(--text2)}
@@ -102,25 +104,50 @@ html[data-theme=dark] .meta{background:rgba(15,29,42,.8)}
 .live-dot:first-child{border-radius:.15rem}
 .live-dot:hover,.live-dot.is-active{opacity:1;background:var(--red);transform:scale(1.25)}
 .live-progress{grid-column:1/-1;height:3px;min-height:3px;overflow:hidden;border-radius:99px;background:var(--border)}
-.live-progress i{display:block;width:0;height:100%;background:var(--red);transition:width 0ms linear}
-.live-chip.is-paused .live-state{color:var(--muted)}
-.live-chip.is-paused .live-state .pulse{background:var(--muted);animation:none}
-.live-chip.is-paused .live-progress i{background:var(--muted)}
-.live-swap{animation:liveSwap .35s ease both}
-@keyframes liveSwap{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.live-progress i{display:block;width:100%;height:100%;background:var(--red);transform-origin:left;transform:scaleX(0);animation:liveProgress linear both paused}
+.live-chip[data-state=running] .live-progress i{animation-play-state:running}
+.live-chip[data-state=manual] .live-progress i{animation-play-state:paused}
+.live-chip[data-state=manual] .live-state .pulse{background:var(--muted);animation:none}
+.live-chip[data-state=manual] .live-progress i{background:var(--muted)}
+@keyframes liveProgress{to{transform:scaleX(1)}}
+.live-value-flash{animation:valueFlash .6s ease-out}
+@keyframes valueFlash{0%{color:var(--live-tint)}100%{color:inherit}}
+.live-value-up{--live-tint:var(--green)}
+.live-value-down{--live-tint:#e34c43}
+.live-step-content{will-change:transform,opacity}
+.live-step-content.live-step-in{animation:liveContentIn 500ms cubic-bezier(.4,0,.2,1) both;animation-delay:var(--live-delay,0ms)}
+@keyframes liveContentIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.live-text-old{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;white-space:nowrap;color:inherit;font:inherit;animation:liveTextOut 150ms ease-out forwards}
+@keyframes liveTextOut{to{opacity:0}}
+.legend-row,.mini-bar i,.heat td{transition:opacity 200ms ease,width 700ms ease,background-color 600ms ease,color 600ms ease}
+.legend-row.legend-change{animation:legendCrossfade 200ms ease both}
+@keyframes legendCrossfade{0%,100%{opacity:1}45%{opacity:0}}
+.top-table tbody tr,.heat tbody tr{transition:background 600ms ease,transform 500ms cubic-bezier(.4,0,.2,1),opacity 300ms ease}
+.live-panel-content.live-step-in #insights li{animation:liveBulletIn 250ms ease both;animation-delay:calc(var(--live-delay,0ms) + var(--bullet-delay,0ms))}
+#insights li:nth-child(1){--bullet-delay:0ms}#insights li:nth-child(2){--bullet-delay:60ms}#insights li:nth-child(3){--bullet-delay:120ms}#insights li:nth-child(4){--bullet-delay:180ms}#insights li:nth-child(5){--bullet-delay:240ms}#insights li:nth-child(6){--bullet-delay:300ms}#insights li:nth-child(7){--bullet-delay:360ms}#insights li:nth-child(8){--bullet-delay:420ms}
+@keyframes liveBulletIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.kpi.live-step-in .viz-line{stroke-dasharray:1;animation:livePathDraw 700ms ease-out both}
+.kpi.live-step-in .viz-scale{transform-box:fill-box;transform-origin:center bottom;animation:liveVizGrow 700ms cubic-bezier(.34,1.56,.64,1) both}
+@keyframes livePathDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes liveVizGrow{from{transform:scaleY(0)}70%{transform:scaleY(1.08)}to{transform:scaleY(1)}}
 .mom-card.is-hot{border-color:var(--blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--blue) 22%,transparent);animation:liveHot 1.2s ease-in-out infinite alternate}
 .legend-row.is-hot{animation:liveHot 1.2s ease-in-out infinite alternate}
 @keyframes liveHot{to{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 26%,transparent)}}
-@media(prefers-reduced-motion:reduce){.live-state .pulse,.mom-card.is-hot,.legend-row.is-hot{animation:none!important}.live-swap{animation:none!important}.live-progress i{transition:none!important}}
-.filebar{max-height:8rem;overflow:hidden;padding:0.375rem 0;border-bottom:1px solid var(--border2);transition:max-height .45s ease,padding .45s ease,opacity .35s ease}.filebar-inner{display:flex;justify-content:space-between;align-items:center;gap:0.625rem;flex-wrap:wrap;transition:transform .45s ease,opacity .35s ease}.filebar.is-collapsed{max-height:.35rem;padding-block:0;opacity:.65;cursor:pointer}.filebar.is-collapsed .filebar-inner{opacity:0;transform:translateY(-.5rem);pointer-events:none}.meta-row{display:flex;gap:1rem;flex-wrap:wrap}.meta-item{font-size:0.75rem;color:var(--text2)}.meta-item strong{color:var(--text)}
+@media(prefers-reduced-motion:reduce){.live-state .pulse,.mom-card.is-hot,.legend-row.is-hot,.live-step-content.live-step-in,.live-text-old{animation:none!important}.live-progress i,.live-value-flash{animation:none!important}.legend-row,.mini-bar i,.heat td,.top-table tbody tr,.heat tbody tr{transition:none!important}}
+.dashboard-wrap{position:relative}
+.filebar{position:absolute;z-index:20;left:0;right:0;top:0;height:.35rem;max-height:.35rem;overflow:visible;padding:0;background:transparent;border:0;transition:height .2s ease}.filebar-inner{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;gap:.625rem;flex-wrap:wrap;min-height:.35rem;padding:.5rem 1rem;background:var(--surface);box-shadow:var(--shadow2);opacity:0;transform:translateY(-.5rem);pointer-events:none;transition:transform .25s ease,opacity .2s ease}.filebar:not(.is-collapsed){height:.35rem}.filebar:not(.is-collapsed) .filebar-inner{opacity:1;transform:translateY(0);pointer-events:auto}.filebar.is-collapsed{cursor:pointer}.meta-row{display:flex;gap:1rem;flex-wrap:wrap}.meta-item{font-size:0.75rem;color:var(--text2)}.meta-item strong{color:var(--text)}
 .note{margin-top:8px;font-size:0.71875rem;color:var(--muted)}.mtd{font-size:0.6875rem;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--border);border-radius:6.1875rem;padding:0.0625rem 0.5rem}.heat-note{text-align:center}
 .pages{display:flex;gap:0.4375rem;padding:0.625rem 0 0.125rem}.page-btn{border:1px solid var(--border);border-radius:0.5rem;padding:0.5rem 0.8125rem;background:var(--surface);color:var(--text2);font-size:0.65625rem;font-weight:900;transition:var(--transition)}.page-btn:hover{transform:translateY(-1px);border-color:var(--blue)}.page-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 5px 14px color-mix(in srgb,var(--blue) 22%,transparent)}
 
 /* manager-like dashboard */
 .reference-page{padding:0.875rem 0 2.5rem}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:0.625rem}.kpi{min-height:0;border:1px solid var(--border);border-radius:var(--radius2);background:var(--surface);padding:.7rem .95rem;display:grid;grid-template-columns:3.25rem 1fr;gap:0.75rem;row-gap:.1rem;align-items:center;box-shadow:var(--shadow2);position:relative;overflow:hidden;transition:var(--transition);z-index:0}.kpi:not(.blue){background:linear-gradient(135deg,color-mix(in srgb,var(--k) 9%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--k) 28%,var(--border))}.kpi:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--k) 55%,var(--border))}.kpi:after{content:"";position:absolute;right:-3.125rem;top:-3.75rem;width:8.75rem;height:8.75rem;border-radius:50%;background:color-mix(in srgb,var(--k) 10%,transparent);pointer-events:none}.kpi > *{position:relative;z-index:1;min-width:0}.kpi .ki{width:3rem;height:3rem;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--k);box-shadow:0 6px 14px color-mix(in srgb,var(--k) 35%,transparent)}.kpi .ki svg{width:1.5rem;height:1.5rem}.kpi .label{font-size:0.78125rem;font-weight:800;color:var(--k);letter-spacing:.01em}.kpi .value{font-family:var(--display);font-size:1.75rem;line-height:1.1;font-weight:900;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi .sub{font-size:0.75rem;color:var(--text2);margin-top:1px}.kpi.blue{--k:#0755a6;background:linear-gradient(135deg,#0755a6,#1267bd);border:0;box-shadow:0 10px 24px rgba(7,85,166,.18)}.kpi.blue .label,.kpi.blue .value,.kpi.blue .sub{color:#fff}.kpi.blue .ki{background:#197ed3}.kpi.blue:hover{border:0}.kpi.cyan{--k:#1787dc}.kpi.orange{--k:#f39a16}.kpi.green{--k:#16a875}.kpi.purple{--k:#7043c7}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:0.625rem}.kpi{min-height:0;border:1px solid var(--border);border-radius:var(--radius2);background:var(--surface);padding:.7rem .95rem;display:grid;grid-template-columns:3.25rem 1fr;gap:0.75rem;row-gap:.1rem;align-items:center;box-shadow:var(--shadow2);position:relative;overflow:hidden;transition:var(--transition);z-index:0}.kpi:not(.blue){background:linear-gradient(135deg,color-mix(in srgb,var(--k) 9%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--k) 28%,var(--border))}.kpi:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--k) 55%,var(--border))}.kpi:after{content:"";position:absolute;right:-3.125rem;top:-3.75rem;width:8.75rem;height:8.75rem;border-radius:50%;background:color-mix(in srgb,var(--k) 10%,transparent);pointer-events:none}.kpi > *{position:relative;z-index:1;min-width:0}.kpi .ki{width:3rem;height:3rem;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--k);box-shadow:0 6px 14px color-mix(in srgb,var(--k) 35%,transparent)}.kpi .ki svg{width:1.5rem;height:1.5rem}.kpi .label{font-size:0.78125rem;font-weight:800;color:var(--k);letter-spacing:.01em}.kpi .value{font-family:var(--display);font-size:1.75rem;line-height:1.1;font-weight:900;color:var(--text);font-variant-numeric:tabular-nums;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi .sub{font-size:0.75rem;color:var(--text2);margin-top:1px}.kpi.blue{--k:#0755a6;background:linear-gradient(135deg,#0755a6,#1267bd);border:0;box-shadow:0 10px 24px rgba(7,85,166,.18)}.kpi.blue .label,.kpi.blue .value,.kpi.blue .sub{color:#fff}.kpi.blue .ki{background:#197ed3}.kpi.blue:hover{border:0}.kpi.cyan{--k:#1787dc}.kpi.orange{--k:#f39a16}.kpi.green{--k:#16a875}.kpi.purple{--k:#7043c7}
 html[data-theme=dark] .kpi:not(.blue){background:linear-gradient(135deg,color-mix(in srgb,var(--k) 14%,var(--surface)),var(--surface))}html[data-theme=dark] .kpi:not(.blue) .label{color:color-mix(in srgb,var(--k) 75%,#fff)}
-.main-grid{display:grid;grid-template-columns:1.03fr 1.16fr .99fr;gap:0.625rem;margin-top:10px;align-items:stretch}.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:0.875rem 1rem;box-shadow:var(--shadow2);transition:border-color var(--transition),box-shadow var(--transition);min-width:0;display:flex;flex-direction:column}.panel:hover{border-color:color-mix(in srgb,var(--blue) 30%,var(--border));box-shadow:var(--shadow)}.panel-title{display:flex;align-items:center;gap:0.625rem;margin:0 0 0.75rem;color:var(--text);font-family:var(--display);font-size:1rem;font-weight:900;letter-spacing:-.01em}.panel-title i{width:1.75rem;height:1.75rem;border-radius:0.5rem;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--blue) 12%,var(--surface2));color:var(--blue);border:1px solid color-mix(in srgb,var(--blue) 22%,var(--border));font-style:normal}.panel-title i svg{width:1rem;height:1rem}.chartbox{height:15.3125rem;position:relative;overflow:hidden}.chartbox canvas{width:100%!important;height:100%!important}
+.main-grid{display:grid;grid-template-columns:1.03fr 1.16fr .99fr;gap:0.625rem;margin-top:10px;align-items:stretch}.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:0.875rem 1rem;box-shadow:var(--shadow2);transition:border-color var(--transition),box-shadow var(--transition);min-width:0;display:flex;flex-direction:column}.panel:hover{border-color:color-mix(in srgb,var(--blue) 30%,var(--border));box-shadow:var(--shadow)}.panel-title{display:flex;align-items:center;gap:0.625rem;margin:0 0 0.75rem;color:var(--text);font-family:var(--display);font-size:1rem;font-weight:900;letter-spacing:-.01em}.panel-title i{width:1.75rem;height:1.75rem;border-radius:0.5rem;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--blue) 12%,var(--surface2));color:var(--blue);border:1px solid color-mix(in srgb,var(--blue) 22%,var(--border));font-style:normal}.panel-title i svg{width:1rem;height:1rem}.chartbox{height:15.3125rem;position:relative;overflow:hidden}.chartbox canvas{width:100%!important;height:100%!important;opacity:1;transition:opacity .5s ease}
+.chartbox canvas.chart-fade{opacity:0}
+.chartbox canvas.chart-transition-in{opacity:0}
+.chartbox canvas.chart-transition-old{z-index:3}
+.chartbox canvas.chart-inactive{opacity:0;pointer-events:none}
 .main-grid .chartbox{position:relative;flex:1 1 0;min-height:16.25rem;height:auto;overflow:hidden}.main-grid .chartbox canvas{position:absolute;inset:0;width:100%!important;height:100%!important}.main-grid .legend-grid{flex:none}
 .donut-row{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(200px,.85fr);gap:1.125rem;flex:1 1 0;min-height:0;align-items:stretch}.donut-row .chartbox{height:100%;min-height:16.25rem}.donut-row .legend-grid{display:flex;flex-direction:column;justify-content:center;gap:0.625rem;margin:0;font-size:0.8125rem}.main-grid .donut-row{min-height:0}.main-grid .donut-row .chartbox{min-height:0}.lower-grid .donut-row{flex:1 1 0;min-height:0}.lower-grid .donut-row .chartbox{height:100%;min-height:15rem;overflow:hidden}.lower-grid .donut-row .chartbox canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
 @keyframes contentReveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -130,10 +157,19 @@ html[data-theme=dark] .kpi:not(.blue){background:linear-gradient(135deg,color-mi
 #dashboard:not(.hidden) .main-grid .reveal:nth-child(1){animation-delay:.30s}#dashboard:not(.hidden) .main-grid .reveal:nth-child(2){animation-delay:.35s}#dashboard:not(.hidden) .main-grid .reveal:nth-child(3){animation-delay:.40s}
 #dashboard:not(.hidden) .lower-grid .reveal:nth-child(1){animation-delay:.45s}#dashboard:not(.hidden) .lower-grid .reveal:nth-child(2){animation-delay:.50s}#dashboard:not(.hidden) .lower-grid .reveal:nth-child(3){animation-delay:.55s}
 #dashboard:not(.hidden) .bottom-grid .reveal:nth-child(1){animation-delay:.60s}#dashboard:not(.hidden) .bottom-grid .reveal:nth-child(2){animation-delay:.65s}#dashboard:not(.hidden) .bottom-grid .reveal:nth-child(3){animation-delay:.70s}
-.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.3125rem 0.625rem;margin-top:3px;font-size:0.59375rem}.legend-row{display:grid;grid-template-columns:12px 1fr auto auto;gap:0.625rem;align-items:center}.dot{width:0.6875rem;height:0.6875rem;border-radius:50%}.legend-row b{font-size:0.8125rem;font-variant-numeric:tabular-nums}.legend-row em{font-style:normal;color:var(--muted);font-size:0.75rem;min-width:3rem;text-align:right}.dist-row{grid-template-columns:12px 1fr auto auto}.dist-name{display:flex;flex-direction:column;line-height:1.25}.dist-name b{font-size:0.8125rem}.dist-name small{color:var(--muted);font-size:0.71875rem}
+.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.3125rem 0.625rem;margin-top:3px;font-size:0.59375rem;min-height:5.5rem}.legend-row{display:grid;grid-template-columns:12px 1fr auto auto;gap:0.625rem;align-items:center}.dot{width:0.6875rem;height:0.6875rem;border-radius:50%}.legend-row b{font-size:0.8125rem;font-variant-numeric:tabular-nums}.legend-row em{font-style:normal;color:var(--muted);font-size:0.75rem;min-width:3rem;text-align:right}.dist-row{grid-template-columns:12px 1fr auto auto}.dist-name{display:flex;flex-direction:column;line-height:1.25}.dist-name b{font-size:0.8125rem}.dist-name small{color:var(--muted);font-size:0.71875rem}
 .rank-change{margin-left:auto;color:var(--blue);font-size:.65rem;font-weight:900;white-space:nowrap}
+.top-table tbody tr{height:2.25rem;transition:background var(--transition),transform 240ms ease,opacity 150ms ease}
+.top-table tbody tr.row-placeholder td{padding:.45rem .5rem;border-bottom:1px solid color-mix(in srgb,var(--border2) 45%,transparent)}
+.top-table tbody tr.row-placeholder i{display:block;height:.25rem;width:72%;border-radius:99px;background:color-mix(in srgb,var(--muted) 14%,transparent)}
+.top-table tbody tr.row-enter,.row-enter{animation:rowEnter 300ms ease both}
+.top-table tbody tr.row-removing{opacity:0;transform:scale(.98)}
+.keyed-removing{opacity:0!important;transform:scale(.98)!important;transition:opacity 300ms ease,transform 300ms ease!important}
+.live-panel-content{display:flex;flex:1 1 auto;flex-direction:column;min-width:0;min-height:0}
+.mom-card{transition:transform 240ms ease,opacity 150ms ease}
+@keyframes rowEnter{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
 .summary-table th:nth-child(4),.summary-table td:nth-child(4){text-align:right}
-.bottom-grid .panel #paceBox{height:auto;min-height:0;flex:1 1 0}
+.bottom-grid .panel #paceBox{height:auto;min-height:12rem;flex:1 1 0}
 .bottom-grid .panel #paceCaption{margin-top:.35rem}
 .top-table,.summary-table{width:100%;border-collapse:collapse}.top-table{font-size:0.78125rem}.summary-table{font-size:0.8125rem}.top-table th,.summary-table th{background:var(--surface2);color:var(--muted);padding:0.375rem;text-align:left;font-size:0.53125rem;text-transform:uppercase}.top-table th{font-size:0.65625rem;padding:0.5rem;letter-spacing:.04em}.summary-table th{background:#0f5aa8;color:#fff;font-size:0.6875rem;padding:0.625rem 0.75rem}.top-table td,.summary-table td{padding:0.3125rem 0.375rem;border-bottom:1px solid var(--border2)}.top-table td{padding:0.5rem}.summary-table td{padding:0.625rem 0.75rem}.top-table td:nth-child(3),.top-table td:nth-child(4),.summary-table td:nth-child(2),.summary-table td:nth-child(3){text-align:right}.top-table th:nth-child(3),.top-table th:nth-child(4),.summary-table th:nth-child(2),.summary-table th:nth-child(3){text-align:right}.top-table td:nth-child(2) b{font-size:0.8125rem}.mini-bar{height:0.375rem;background:var(--surface3);border-radius:0.3125rem;overflow:hidden;margin-top:3px}.mini-bar i{display:block;height:100%;background:linear-gradient(90deg,#0879d5,#4bb9ee);border-radius:0.3125rem}.top-table tbody tr{transition:background var(--transition)}.top-table tbody tr:hover{background:color-mix(in srgb,var(--blue) 6%,transparent)}.top-table td:first-child{font-weight:800;color:var(--muted);width:1.875rem}.summary-table th:first-child{border-radius:0.5rem 0 0 0.5rem}.summary-table th:last-child{border-radius:0 0.5rem 0.5rem 0}.summary-table tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--blue) 4%,transparent)}.summary-table tbody tr:hover td{background:color-mix(in srgb,var(--blue) 8%,transparent)}.summary-table tbody tr.total-row td{background:#0f5aa8;color:#fff;font-weight:900;border-bottom:0}.summary-table tbody tr.total-row td:first-child{border-radius:0.5rem 0 0 0.5rem}.summary-table tbody tr.total-row td:last-child{border-radius:0 0.5rem 0.5rem 0}
 .lower-grid{display:grid;grid-template-columns:.86fr 1.14fr .99fr;gap:0.625rem;margin-top:10px}.heat-wrap{overflow:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}.heat-wrap::-webkit-scrollbar{height:0.5rem;width:0.5rem}.heat-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:6.1875rem}.heat{width:100%;border-collapse:separate;border-spacing:2px;font-size:0.75rem}.heat th{padding:0.5rem 0.375rem;background:var(--surface2);color:var(--text2);font-size:0.6875rem;font-weight:800;letter-spacing:.03em;border-radius:0.375rem;text-align:center}.heat th:first-child{text-align:left;padding-left:10px}.heat td{padding:0.5rem 0.375rem;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;border:0;border-radius:0.375rem;color:#0a2a4a}.heat td.name{text-align:left;padding-left:10px;background:var(--surface2);color:var(--text);font-weight:800;white-space:nowrap}.heat td.total{background:var(--surface2);color:var(--text);font-weight:900}.heat td.hm0{background:#8cc3f6;color:#0a2a4a}.heat td.hm1{background:#74d6dc;color:#0a2a4a}.heat td.hm2{background:#7fdca4;color:#0a3a2a}.heat td.hm3{background:#9ee27c;color:#0a3a1a}.heat td.hm4{background:#cde85c;color:#3a3400}.heat td.hm5{background:#f5dc4e;color:#4a3800}.heat td.hm6{background:#f6a93b;color:#4a2400}.heat td.hm7{background:#ee6a35;color:#fff}.heat td.hm8{background:#d93a2f;color:#fff}.heat tbody tr:hover td:not(.name):not(.total){filter:brightness(1.06)}.scale{height:0.625rem;border-radius:6.1875rem;background:linear-gradient(90deg,#8cc3f6,#74d6dc,#7fdca4,#cde85c,#f5dc4e,#f6a93b,#d93a2f);margin:0.75rem 18% 0}.scale-label{display:flex;justify-content:space-between;margin:0.3125rem 18% 0;font-size:0.6875rem;color:var(--muted)}
@@ -175,9 +211,27 @@ html[data-theme=dark] .kpi:not(.blue){background:linear-gradient(135deg,color-mi
 .kpi:hover:before,.panel:hover:before{opacity:1}
 .panel:after{content:"";position:absolute;left:1rem;right:1rem;top:0;height:2px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--blue) 55%,transparent),transparent);opacity:.7;pointer-events:none;z-index:2}
 .panel>*{position:relative;z-index:1}
-.kpi-viz{position:static;grid-column:1/-1;width:100%;max-width:none;height:1.9rem;margin-top:.15rem;z-index:1;color:var(--k)}
+.kpi-viz{position:static;grid-column:1/-1;width:100%;max-width:none;height:2.1rem;margin-top:.15rem;z-index:1;color:var(--k)}
 .kpi.blue .kpi-viz{color:#fff}
 .kpi-viz svg{display:block;width:100%;height:100%;overflow:visible}
+.kpi.orange .kpi-viz{position:absolute;top:.7rem;right:.9rem;width:3.6rem;height:3.6rem;grid-column:auto;margin:0}
+.kpi.orange>div:nth-child(2){padding-right:3.8rem}
+.kpi.purple:not(.is-month-mode)>div:nth-child(2){padding-right:4.5rem}
+.top3-podium{position:absolute;top:.7rem;right:.9rem;width:4.2rem;height:3.4rem;z-index:2;color:var(--k)}
+.top3-podium[hidden]{display:none}
+.top3-podium svg{display:block;width:100%;height:100%;overflow:visible}
+.top3-podium .viz-scale{transform-box:fill-box;transform-origin:center bottom}
+.top3-podium.intro .viz-scale{animation:vizScale .6s cubic-bezier(.2,.8,.2,1) both}
+.kpi.purple:not(.is-month-mode) #vizTop3{display:flex;align-items:center;gap:.3rem;height:auto;min-height:1.6rem;margin-top:0}
+.kpi.purple:not(.is-month-mode) #vizTop3 svg{width:1.1rem;height:1.1rem;flex:none}
+.top3-chip{position:relative;display:flex;align-items:center;gap:.2rem;min-width:0;max-width:33.333%;padding:.12rem .28rem;border:1px solid color-mix(in srgb,var(--rank-color) 62%,var(--border));border-radius:999px;background:color-mix(in srgb,var(--rank-color) 12%,var(--surface));font-size:.62rem;line-height:1.2}
+.top3-chip .av{width:1.1rem;height:1.1rem;flex:none}
+.top3-chip .top3-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.top3-chip b{font-size:.62rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.top3-rank-1{--rank-color:#d6a326}.top3-rank-2{--rank-color:#98a6b5}.top3-rank-3{--rank-color:#b66e3d}
+@container (max-width:22rem){.kpi.purple:not(.is-month-mode) #vizTop3 .top3-name{display:none}}
+.viz-line{vector-effect:non-scaling-stroke}
+.kpi.blue #vizTotal .viz-line{stroke:#fff;opacity:.95}
 .legend-row.is-hot{background:color-mix(in srgb,var(--blue) 12%,var(--surface2))}
 .legend-row.is-lead span:nth-child(2){font-weight:800}
 .sub-row{grid-template-columns:minmax(0,1fr) minmax(8.5rem,auto);gap:.9rem;flex:1 1 0;min-height:0;align-items:center}
@@ -188,9 +242,50 @@ html[data-theme=dark] .kpi:not(.blue){background:linear-gradient(135deg,color-mi
 .heat td.hm0{background:color-mix(in srgb,var(--border) 35%,var(--surface2));color:var(--muted);font-weight:600}
 .heat .col-hl{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--blue) 55%,transparent)}
 .heat tbody tr:hover td.name,.heat tbody tr:hover td.total{background:color-mix(in srgb,var(--blue) 12%,var(--surface2))}
-.av{display:inline-grid;place-items:center;flex:none;width:1.75rem;height:1.75rem;border:1px solid hsl(var(--h) 70% 55% / .35);border-radius:50%;background:color-mix(in srgb,hsl(var(--h) 70% 55%) 22%,var(--surface2));color:hsl(var(--h) 60% 38%);font-size:.6875rem;font-weight:900;line-height:1}
-html[data-theme=dark] .av{color:hsl(var(--h) 80% 75%)}
-.person-name{display:flex;align-items:center;gap:.5rem;min-width:0}.person-name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av{display:inline-grid;place-items:center;flex:none;width:1.75rem;height:1.75rem;border:0;border-radius:50%;background:linear-gradient(145deg,hsl(var(--h) 75% 78%),hsl(var(--h) 72% 42%));overflow:visible;transition:transform .18s ease}
+.av.mood-change{animation:avatarMoodIn 120ms ease both}
+@keyframes avatarMoodIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.av-mood-old{position:absolute;top:50%;left:0;z-index:3;pointer-events:none;transform:translateY(-50%);animation:avatarFadeOut 250ms ease forwards!important}
+.top3-chip .av-mood-old{left:.28rem}
+@keyframes avatarFadeOut{to{opacity:0}}
+.av .avatar-crown{opacity:0}
+.av.rank-1 .avatar-crown{opacity:1}
+.top-table tbody tr:first-child .av{border:2px solid #f2bd49}
+.top-table tbody tr:nth-child(2) .av{border:2px solid #aeb9c7}
+.top-table tbody tr:nth-child(3) .av{border:2px solid #c77c3f}
+.top-table .av,.heat .av{clip-path:circle(50%)}
+.top-table .av .avatar-eyes,.heat .av .avatar-eyes{transform-box:fill-box;transform-origin:center;animation:avatarBlink var(--blink-duration,4s) ease-in-out var(--blink-delay,0s) infinite}
+.top-table .av.rank-1,.top-table .av.rank-2,.top-table .av.rank-3,.heat .av.rank-1,.heat .av.rank-2,.heat .av.rank-3{animation:avatarFloat 2.4s ease-in-out var(--idle-delay,0s) infinite}
+.top-table .av.rank-mid,.heat .av.rank-mid{animation:avatarBreathe 5s ease-in-out var(--idle-delay,0s) infinite}
+.top-table .av.rank-low,.heat .av.rank-low{animation:avatarDroop 3s ease-in-out var(--idle-delay,0s) infinite}
+.top-table .av .avatar-sweat,.heat .av .avatar-sweat{animation:sweatSlide 2.6s ease-in-out infinite}
+.top-table .av .avatar-tear,.heat .av .avatar-tear{animation:sweatSlide 3s ease-in-out infinite}
+.top-table .av.rank-1 .avatar-crown,.heat .av.rank-1 .avatar-crown{transform-origin:20px 9px;animation:crownGlow 1.8s ease-in-out infinite}
+.top-table .av.rank-1 .avatar-sparkle,.heat .av.rank-1 .avatar-sparkle{transform-box:fill-box;transform-origin:center;animation:sparkleTwinkle 1s ease-in-out infinite}
+.top-table tbody tr:hover .av,.heat tbody tr:hover .av{animation-name:avatarWiggle;animation-duration:.45s;animation-iteration-count:1}
+.av:hover .avatar-mouth{opacity:0}
+.av .avatar-mouth-hover{opacity:0}
+.av:hover .avatar-mouth-hover{opacity:1}
+.top-table tr.rank-up td:nth-child(2),.heat tr.rank-up td.name{animation:rankJump .45s ease}
+.top-table tr.rank-down td:nth-child(2),.heat tr.rank-down td.name{animation:rankShake .45s ease}
+.top-table tr.rank-new td:nth-child(2),.heat tr.rank-new td.name{animation:rankEnter .45s ease}
+.top-table tr.rank-up td:nth-child(2):after,.heat tr.rank-up td.name:after{content:"▲";color:#16a875;font-size:.7rem;font-weight:900;margin-left:.35rem}
+.top-table tr.rank-down td:nth-child(2):after,.heat tr.rank-down td.name:after{content:"▼";color:#e34c43;font-size:.7rem;font-weight:900;margin-left:.35rem}
+.top-table tr.rank-new td:nth-child(2):after,.heat tr.rank-new td.name:after{content:"NEW";color:var(--blue);font-size:.6rem;font-weight:900;margin-left:.35rem}
+@keyframes avatarBlink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes avatarFloat{50%{transform:translateY(-1px)}}
+@keyframes avatarBreathe{50%{transform:scale(1.03)}}
+@keyframes avatarDroop{50%{transform:translateY(1px) rotate(-4deg)}}
+@keyframes avatarWiggle{25%{transform:rotate(8deg)}75%{transform:rotate(-6deg)}}
+@keyframes crownGlow{50%{filter:drop-shadow(0 0 2px #ffd85a);transform:rotate(4deg)}}
+@keyframes sparkleTwinkle{50%{opacity:.3;transform:scale(.65)}}
+@keyframes sweatSlide{50%{opacity:.45;transform:translateY(2px)}}
+@keyframes rankJump{45%{transform:translateY(-3px)}}
+@keyframes rankShake{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+@keyframes rankEnter{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+html.is-hidden .top-table .av,html.is-hidden .heat .av,html.is-hidden .top-table .av *,html.is-hidden .heat .av *{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.av,.top-table .av,.heat .av,.av *,.top-table tr.rank-up td:nth-child(2),.top-table tr.rank-down td:nth-child(2),.top-table tr.rank-new td:nth-child(2),.heat tr.rank-up td.name,.heat tr.rank-down td.name,.heat tr.rank-new td.name{transition:none!important;animation:none!important;filter:none!important;transform:none!important}.top-table tbody tr:hover .av,.heat tbody tr:hover .av{transform:none!important}}
+.person-name{position:relative;display:flex;align-items:center;gap:.5rem;min-width:0}.person-name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mini-bar i.leader{background:linear-gradient(90deg,var(--blue),var(--green))}
 .rank-medal{display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:50%;color:var(--surface);font-size:.75rem;font-weight:900;box-shadow:0 1px 4px color-mix(in srgb,var(--text) 22%,transparent)}
 .rank-medal.gold{background:linear-gradient(135deg,color-mix(in srgb,var(--orange) 82%,var(--surface)),color-mix(in srgb,var(--orange) 58%,var(--text)))}
@@ -214,7 +309,7 @@ html[data-theme=dark] .av{color:hsl(var(--h) 80% 75%)}
 .insight-icon{display:grid;place-items:center;width:1.6rem;height:1.6rem;border-radius:50%;background:color-mix(in srgb,var(--icon) 14%,var(--surface2));color:var(--icon)}
 .insight-icon svg{width:1rem;height:1rem}
 .insight-text{min-width:0}
-@media(prefers-reduced-motion:reduce){.fresh .pulse{transition:none!important;animation:none!important;transform:none!important;opacity:1}.kpi-viz *{animation:none!important;transform:none!important;stroke-dashoffset:0!important}}
+@media(prefers-reduced-motion:reduce){.fresh .pulse{transition:none!important;animation:none!important;transform:none!important;opacity:1}.kpi-viz *,.top3-podium *{animation:none!important;transform:none!important;stroke-dashoffset:0!important}}
 @container (max-width:11rem){.kpi-viz{display:none}}
 .kpi-viz.intro .viz-line{stroke-dasharray:1;stroke-dashoffset:1;animation:vizDash .6s ease forwards}
 .kpi-viz.intro .viz-ring{stroke-dashoffset:100;animation:vizDash .6s ease forwards}
@@ -238,7 +333,7 @@ html[data-theme=dark] .av{color:hsl(var(--h) 80% 75%)}
 .filter-toggle svg:first-child{display:block;width:1.125rem;height:1.125rem;margin:0;flex:none;stroke-width:2;transform:none;vertical-align:middle}
 .filters-controls{position:absolute;top:calc(100% + .625rem);right:0;width:min(26rem,calc(100vw - 2rem));max-height:0;padding:0 .75rem;border:1px solid transparent;border-radius:var(--radius2);background:var(--surface);box-shadow:var(--shadow2);pointer-events:none;transition:max-height .3s ease,opacity .22s ease,padding .3s ease,border-color .3s ease}
 .filters-bar.is-open .filters-controls{max-height:min(65vh,32rem);padding:.75rem;overflow-y:auto;border-color:var(--border);pointer-events:auto}
-.kpi-viz{height:1.5rem;margin-top:0}
+.kpi-viz{height:2.1rem;margin-top:0}
 .top-panel{overflow:hidden}
 .top-scroll{flex:1 1 auto;min-height:0;overflow:auto;scrollbar-width:thin}
 .top-table thead th{position:sticky;top:0;z-index:2}
@@ -307,7 +402,7 @@ html[data-theme=dark] .av{color:hsl(var(--h) 80% 75%)}
       </div>
       <div class="top-actions">
         <div class="live-chip" id="liveChip" hidden>
-          <div class="live-state"><i class="pulse"></i><span id="liveWord">LIVE</span></div>
+          <div class="live-state"><i class="pulse"></i><span id="liveWord">LIVE</span><small id="livePauseHint" hidden></small></div>
           <span class="live-view-label" id="liveLabel">All Months</span>
           <button class="live-toggle" id="liveToggle" type="button" aria-pressed="true" aria-label="Pause live replay" title="Pause live replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
           <div class="live-timeline" id="liveTimeline" aria-label="Replay timeline"></div>
@@ -343,7 +438,7 @@ html[data-theme=dark] .av{color:hsl(var(--h) 80% 75%)}
         <div class="kpi cyan reveal"><div class="ki"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="label" id="kMonthsL">Active Months</div><div class="value" id="kMonths">—</div><div class="sub" id="kMonthsSub">—</div></div><div class="kpi-viz" aria-hidden="true" id="vizMonths"></div></div>
         <div class="kpi orange reveal"><div class="ki"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4v2a4 4 0 0 0 4 4M17 6h3v2a4 4 0 0 1-4 4"/></svg></div><div><div class="label">Top Performer</div><div class="value" id="kTop">—</div><div class="sub" id="kTopSub">—</div></div><div class="kpi-viz" aria-hidden="true" id="vizTop"></div></div>
         <div class="kpi green reveal"><div class="ki"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div><div class="label" id="kPeakL">Peak Month</div><div class="value" id="kPeak">—</div><div class="sub" id="kPeakSub">—</div></div><div class="kpi-viz" aria-hidden="true" id="vizPeak"></div></div>
-        <div class="kpi purple reveal"><div class="ki"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div><div><div class="label" id="kTop3L">Top 3 Contribution</div><div class="value" id="kTop3">—</div><div class="sub" id="kTop3Sub">—</div></div><div class="kpi-viz" aria-hidden="true" id="vizTop3"></div></div>
+        <div class="kpi purple reveal"><div class="ki"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div><div><div class="label" id="kTop3L">Top 3 Contribution</div><div class="value" id="kTop3">—</div><div class="sub" id="kTop3Sub">—</div></div><div class="top3-podium" id="vizTop3Podium" aria-hidden="true" hidden></div><div class="kpi-viz" aria-hidden="true" id="vizTop3"></div></div>
       </div>
 
       <div class="main-grid">
@@ -355,7 +450,7 @@ html[data-theme=dark] .av{color:hsl(var(--h) 80% 75%)}
       <div class="lower-grid">
         <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></i><span id="ttlSummary">Monthly Installation Summary</span></div><div class="table-fill" style="flex:0 0 auto;display:block"><table class="summary-table" style="width:100%"><thead><tr><th>Month</th><th>Installations</th><th>% of Total</th></tr></thead><tbody id="summaryBody"></tbody></table></div></div>
         <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></i>Individual Performance Heatmap</div><div class="heat-wrap"><table class="heat"><thead id="heatHead"></thead><tbody id="heatBody"></tbody></table></div><div class="scale"></div><div class="scale-label"><span>Low Installations</span><span>High Installations</span></div><div class="note heat-note" id="heatNote" hidden></div></div>
-        <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></i><span id="ttlDist">Installation Distribution</span></div><div class="donut-row"><div class="chartbox"><canvas id="distributionChart"></canvas><canvas id="hourChart" hidden></canvas></div><div id="distLegend" class="legend-grid dist-legend"></div></div></div>
+        <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></i><span id="ttlDist">Installation Distribution</span></div><div class="donut-row"><div class="chartbox"><canvas id="distributionChart"></canvas><canvas id="hourChart" class="chart-inactive"></canvas></div><div id="distLegend" class="legend-grid dist-legend"></div></div></div>
       </div>
 
       <div class="bottom-grid">
@@ -378,15 +473,23 @@ const DARK_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAuMAAAFSCAYAAAB
 let allRows=[], charts={};
 
 const $=id=>document.getElementById(id);
+function setHTML(el,html){if(!el||el._h===html)return false;el._h=html;rewriteHTML(el,html);return true}
+function setText(el,text,{flash=false}={}){if(!el)return false;text=String(text??"");const previous=el.textContent;if(previous===text)return false;const liveFx=live.rendering&&live.renderAnimation!==0&&!matchMedia("(prefers-reduced-motion: reduce)").matches,shouldCrossfade=liveFx&&(flash||/^ttl|^kMonthsL|^kPeakL|^kTop3L|liveLabel|paceCaption/.test(el.id||""));let oldText;if(shouldCrossfade&&previous.trim()){oldText=document.createElement("span");oldText.className="live-text-old";oldText.textContent=previous;oldText.setAttribute("aria-hidden","true");if(getComputedStyle(el).position==="static")el.style.position="relative"}el.textContent=text;if(oldText){el.append(oldText);oldText.addEventListener("animationend",()=>oldText.remove(),{once:true})}if(flash&&liveFx){const numeric=value=>{const match=String(value).replace(/,/g,"").match(/[-+]?\d+(?:\.\d+)?/);return match?Number(match[0]):null},before=numeric(previous),after=numeric(text);flashValue(el,before!==null&&after!==null&&after<before?"down":"up")}return true}
 const monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 let dataEnd=null,partialKey=null;
-let live={on:true,timer:null,swapTimer:null,idx:-1,paused:false,tick:0,months:[],activeMonth:null,duration:0,started:0,remaining:0};
-const HOLD_ALL=10000,HOLD_MONTH=6000;
-let liveResumeTimer=null;
+let live={on:true,timer:null,idx:-1,paused:false,state:"running",driving:false,rendering:false,renderFrame:null,renderRows:null,tick:0,months:[],activeMonth:null,duration:0,started:0,remaining:0,renderAnimation:null,transitioning:false,transitionTimer:null,staggerTimers:[],transitionToken:0,renderStepToken:null,hiddenPaused:false,resumeAfterHidden:false};
+const HOLD_ALL=10000,HOLD_MONTH=9000,TRANS=1100,TRANSITION_TOTAL=1650,LIVE_EASING="easeInOutCubic";
+const chartFadeTimers=new Set();
+const keyedRemovalTimers=new Map();
+const valueFlashTimers=new Map();
+const keyedAnimationFrames=new Set();
+function flashValue(el,direction){clearTimeout(valueFlashTimers.get(el));el.classList.remove("live-value-up","live-value-down","live-value-flash");el.classList.add(direction==="down"?"live-value-down":"live-value-up","live-value-flash");valueFlashTimers.set(el,setTimeout(()=>{el.classList.remove("live-value-up","live-value-down","live-value-flash");valueFlashTimers.delete(el)},650))}
+function keyedFrame(callback){const id=requestAnimationFrame(()=>{keyedAnimationFrames.delete(id);callback()});keyedAnimationFrames.add(id);return id}
+function clearKeyedAnimations(){keyedAnimationFrames.forEach(cancelAnimationFrame);keyedAnimationFrames.clear();document.querySelectorAll("#topBody tr,#heatBody tr,#summaryBody tr,#mom>*").forEach(row=>{row.style.removeProperty("transform");row.style.removeProperty("transition")})}
 const palette=["#1487df","#7b4bd0","#f2a51d","#0756a5","#1888dd","#18a979","#f58f12","#5e49bd","#2ca7d8","#db5a39"];
 
 function fmt(n){return Number(n||0).toLocaleString("en-IN")}
-function countTo(el,to,{decimals=0,suffix="",prefix=""}={}){cancelAnimationFrame(el._raf);const from=Number(el._v)||0,reduced=matchMedia("(prefers-reduced-motion: reduce)").matches,render=value=>{el.textContent=prefix+(decimals?Number(value).toFixed(decimals):fmt(Math.round(value)))+suffix};el._v=to;if(reduced){render(to);return}const start=performance.now(),duration=900;const tick=now=>{const progress=Math.min(1,(now-start)/duration),eased=progress===1?1:1-Math.pow(2,-10*progress);render(from+(to-from)*eased);if(progress<1)el._raf=requestAnimationFrame(tick);else el._raf=0};el._raf=requestAnimationFrame(tick)}
+function countTo(el,to,{decimals=0,suffix="",prefix="",duration:durationOption}={}){const liveChange=live.rendering,duration=durationOption??(liveChange?(live.renderAnimation??900):900);cancelAnimationFrame(el._raf);const from=Number(el._v)||0,reduced=matchMedia("(prefers-reduced-motion: reduce)").matches,render=value=>setText(el,prefix+(decimals?Number(value).toFixed(decimals):fmt(Math.round(value)))+suffix,{flash:false});el._v=to;if(reduced||duration===0){render(to);return}if(liveChange)flashValue(el,to>=from?"up":"down");const start=performance.now();const tick=now=>{const progress=Math.min(1,(now-start)/duration),eased=progress===1?1:1-Math.pow(1-progress,3);render(from+(to-from)*eased);if(progress<1)el._raf=requestAnimationFrame(tick);else el._raf=0};el._raf=requestAnimationFrame(tick)}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function norm(s){return String(s??"").trim().toLowerCase().replace(/[^a-z0-9]+/g," ")}
 function dateParse(v){if(typeof v==="number")return new Date(Math.round((v-25569)*86400000));if(v instanceof Date){if(isNaN(v))return null;return new Date(Date.UTC(v.getFullYear(),v.getMonth(),v.getDate(),v.getHours(),v.getMinutes(),v.getSeconds()))}const d=new Date(v);if(isNaN(d))return null;return new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds()))}
@@ -399,17 +502,20 @@ function liveMonthLabel(month){if(!month)return"All Months";const [year,monthNum
 function updateLiveView(){
   const selectedMonth=!live.on?$("filterMonth").value:"All";
   const label=liveMonthLabel(live.idx<0?(selectedMonth==="All"?null:selectedMonth):live.months[live.idx]);
-  $("liveLabel").textContent=label;
-  $("liveView").innerHTML=`Showing: <strong>${esc(label)}</strong>`;
-  $("liveWord").textContent=live.on?"LIVE":"OFF";
-  $("liveChip").classList.toggle("is-paused",!live.on||live.paused);
+  setText($("liveLabel"),label);setHTML($("liveView"),`Showing: <strong>${esc(label)}</strong>`);
+  const state=live.on&&!live.paused?"running":"manual";
+  setText($("liveWord"),state==="running"?"LIVE":"PAUSED");
+  $("livePauseHint").hidden=true;
+  $("liveChip").dataset.state=state;
+  const showPlay=state==="manual";
   $("liveToggle").setAttribute("aria-pressed",String(live.on&&!live.paused));
-  const action=live.on&&!live.paused?"Pause":"Play";
+  const action=showPlay?"Play":"Pause";
   $("liveToggle").setAttribute("aria-label",`${action} live replay`);
   $("liveToggle").title=`${action} live replay`;
-  $("liveToggle").innerHTML=live.on&&!live.paused
-    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>'
-    :'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 4 13 8-13 8z"/></svg>';
+  $("liveToggle").innerHTML=showPlay
+    ?'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 4 13 8-13 8z"/></svg>'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>';
+  $("liveProgress").style.animationPlayState=state==="running"?"running":"paused";
 }
 function markLiveStep(){
   const month=live.idx<0?null:live.months[live.idx];
@@ -420,65 +526,197 @@ function markLiveStep(){
   updateLiveView();
 }
 function clearLiveTimer(){clearTimeout(live.timer);live.timer=null}
-function armLive(duration,preserveProgress=false){
+function clearLiveStaggers(){
+  live.staggerTimers.forEach(clearTimeout);live.staggerTimers=[];
+  clearTimeout(live.transitionTimer);live.transitionTimer=null;
+}
+function cancelLiveTransition(){
+  clearLiveStaggers();clearKeyedAnimations();live.transitionToken++;
+  keyedRemovalTimers.forEach(clearTimeout);keyedRemovalTimers.clear();valueFlashTimers.forEach(clearTimeout);valueFlashTimers.clear();avatarFadeTimers.forEach(clearTimeout);avatarFadeTimers.clear();chartFadeTimers.forEach(clearTimeout);chartFadeTimers.clear();
+  document.querySelectorAll(".av-mood-old,.chart-transition-old").forEach(element=>element.remove());document.querySelectorAll("canvas.chart-transition-in").forEach(canvas=>canvas.classList.remove("chart-transition-in"));
+  document.querySelectorAll(".live-step-in,.live-value-flash,.live-text-old,.legend-change").forEach(element=>{if(element.classList.contains("live-text-old"))element.remove();else element.classList.remove("live-step-in","live-value-flash","live-value-up","live-value-down","legend-change")});
+  document.querySelectorAll(".keyed-removing,.row-removing").forEach(element=>element.classList.remove("keyed-removing","row-removing"));
+  live.transitioning=false;
+}
+function beginLiveChoreography(token){
+  if(!live.transitioning||token!==live.transitionToken)return;
+  const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!reduced)document.querySelectorAll("[data-live-order]").forEach(element=>{
+    element.classList.remove("live-step-in");element.style.setProperty("--live-delay",`${Number(element.dataset.liveOrder)*80}ms`);void element.offsetWidth;element.classList.add("live-step-in");
+  });
+  live.transitionTimer=setTimeout(()=>finishLiveTransition(token),reduced?0:TRANSITION_TOTAL);
+}
+function armLive(duration,resume=false){
   clearLiveTimer();
   if(!live.on||live.paused||live.months.length<=1)return;
   const progress=$("liveProgress");
-  if(!preserveProgress){progress.style.transitionDuration="0ms";progress.style.width="0%";progress.offsetWidth}
-  live.duration=duration;live.started=performance.now();live.tick=live.started+duration;
-  requestAnimationFrame(()=>{progress.style.transitionDuration=duration+"ms";progress.style.width="100%"});
+  if(!resume){live.duration=duration;progress.style.animation="none";progress.offsetWidth;progress.style.animation=`liveProgress ${duration}ms linear both`}
+  live.started=performance.now();live.tick=live.started+duration;live.remaining=duration;live.state="running";
+  updateLiveView();
   live.timer=setTimeout(()=>{
     if(!live.on||live.paused)return;
-    live.idx=live.idx<0?0:live.idx+1;
-    if(live.idx>=live.months.length)live.idx=-1;
-    markLiveStep();
-    const page=$("operationsPage");page.classList.remove("live-swap");void page.offsetWidth;page.classList.add("live-swap");
-    clearTimeout(live.swapTimer);live.swapTimer=setTimeout(()=>page.classList.remove("live-swap"),350);
-    $("filterMonth").value=live.idx<0?"All":live.months[live.idx];syncFilterState();renderDashboard(getFilteredRows());
-    armLive(live.idx<0?HOLD_ALL:HOLD_MONTH);
+    liveStep(live.idx<0?0:live.idx+1);
   },duration);
 }
 function pauseLive(){
-  if(!live.on||live.paused)return;
-  clearTimeout(liveResumeTimer);liveResumeTimer=null;
-  live.paused=true;live.remaining=Math.max(0,live.tick-performance.now());clearLiveTimer();
-  const progress=$("liveProgress"),parent=progress.parentElement;
-  const width=progress.getBoundingClientRect().width,parentWidth=parent.getBoundingClientRect().width;
-  progress.style.transitionDuration="0ms";progress.style.width=(parentWidth?width/parentWidth*100:0)+"%";
+  if(!live.on)return;
+  live.paused=true;live.state="manual";live.remaining=Math.max(0,live.tick-performance.now());clearLiveTimer();
   updateLiveView();
 }
 function resumeLive(){
-  if(!live.on||!live.paused||$("filtersBar").classList.contains("is-open")||document.hidden||document.querySelector(".panel:hover,.kpi:hover"))return;
-  live.paused=false;updateLiveView();
-  if(live.months.length>1)armLive(live.remaining|| (live.idx<0?HOLD_ALL:HOLD_MONTH),true);
+  if(!live.on||!live.paused||document.hidden)return;
+  live.paused=false;live.state="running";const remaining=live.remaining;live.tick=performance.now()+remaining;updateLiveView();
+  if(live.months.length>1&&!live.transitioning)armLive(remaining,true);
 }
-function scheduleLiveResume(){
-  clearTimeout(liveResumeTimer);
-  if(live.on&&live.paused)liveResumeTimer=setTimeout(()=>{liveResumeTimer=null;resumeLive()},3000);
+function setupLiveContentTargets(){
+  document.querySelectorAll(".panel").forEach(panel=>{
+    if(panel.querySelector(".live-panel-content"))return;
+    const title=panel.querySelector(":scope > .panel-title");if(!title)return;
+    const content=document.createElement("div");content.className="live-panel-content live-step-content";
+    while(title.nextSibling)content.append(title.nextSibling);
+    panel.append(content);
+  });
+  $("liveChip").classList.add("live-step-content");$("liveChip").dataset.liveOrder="0";
+  $("liveView").classList.add("live-step-content");$("liveView").dataset.liveOrder="0";
+  document.querySelectorAll(".kpis .kpi").forEach((card,index)=>{card.classList.add("live-step-content");card.dataset.liveOrder=String(index+1)});
+  document.querySelectorAll(".main-grid .panel").forEach((panel,index)=>{const content=panel.querySelector(".live-panel-content");if(content)content.dataset.liveOrder=String(index+6)});
+  document.querySelectorAll(".lower-grid .panel").forEach((panel,index)=>{const content=panel.querySelector(".live-panel-content");if(content)content.dataset.liveOrder=String(index+9)});
+  document.querySelectorAll(".bottom-grid .panel").forEach((panel,index)=>{const content=panel.querySelector(".live-panel-content");if(content)content.dataset.liveOrder=String(index+12)});
 }
-function startLive(){
-  clearLiveTimer();clearTimeout(liveResumeTimer);liveResumeTimer=null;
-  $("liveProgress").style.transitionDuration="0ms";$("liveProgress").style.width="0%";
-  live.on=true;live.paused=false;live.idx=-1;live.remaining=0;
+function liveStep(target,forced=false){
+  if(!live.on||live.transitioning&&!forced)return false;
+  if(forced)cancelLiveTransition();
+  target=target<0||target>=live.months.length?-1:target;
+  clearLiveTimer();live.idx=target;live.driving=true;live.paused=false;live.state="running";
+  $("filterMonth").value=target<0?"All":live.months[target];syncFilterState();markLiveStep();
+  live.transitioning=true;live.remaining=target<0?HOLD_ALL:HOLD_MONTH;live.duration=live.remaining;live.started=performance.now();live.tick=live.started+live.duration;
+  const progress=$("liveProgress"),reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  progress.style.animation="none";progress.offsetWidth;progress.style.animation=`liveProgress ${live.duration}ms linear both`;progress.style.animationPlayState="running";
+  live.renderAnimation=reduced?0:TRANS;live.transitionToken++;const token=live.transitionToken;live.renderStepToken=token;
+  renderDashboard(getFilteredRows());return token;
+}
+function finishLiveTransition(token){
+  if(token!==live.transitionToken)return;
+  live.transitioning=false;document.querySelectorAll(".live-step-in").forEach(element=>{element.classList.remove("live-step-in");element.style.removeProperty("--live-delay")});clearLiveStaggers();
+  if(live.on&&!live.paused&&live.months.length>1)armLive(Math.max(0,live.tick-performance.now()),true);
+}
+function startLive(resetFilters=true){
+  clearLiveTimer();clearLiveStaggers();cancelLiveTransition();live.renderStepToken=null;
+  live.on=true;live.paused=false;live.state="running";live.driving=true;live.idx=-1;live.remaining=0;live.hiddenPaused=false;live.resumeAfterHidden=false;
   live.months=[...new Set(allRows.filter(row=>row.dt).map(row=>monthKey(row.dt)))].sort((a,b)=>b.localeCompare(a));
   $("liveChip").hidden=false;
   $("liveTimeline").hidden=live.months.length<=1;
   $("liveTimeline").innerHTML=['All',...live.months].map((month,index)=>`<button class="live-dot${index===0?" is-active":""}" type="button" data-step="${index-1}" aria-label="${month==="All"?"All Months":liveMonthLabel(month)}" title="${month==="All"?"All Months":liveMonthLabel(month)}"></button>`).join("");
-  ["filterMonth","filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).value="All");syncFilterState();live.idx=-1;markLiveStep();renderDashboard(getFilteredRows());
-  if(live.months.length>1){armLive(HOLD_ALL);if($("filtersBar").classList.contains("is-open")||document.hidden||document.querySelector(".panel:hover,.kpi:hover"))pauseLive()}
+  if(resetFilters)["filterMonth","filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).value="All");else $("filterMonth").value="All";
+  syncFilterState();live.idx=-1;markLiveStep();live.renderAnimation=null;renderDashboard(getFilteredRows());
+  if(live.months.length>1){armLive(HOLD_ALL);if(document.hidden){live.resumeAfterHidden=true;live.hiddenPaused=true;pauseLive()}}
 }
 function stopLive(off=false){
-  clearLiveTimer();clearTimeout(liveResumeTimer);liveResumeTimer=null;
-  clearTimeout(live.swapTimer);live.swapTimer=null;$("operationsPage").classList.remove("live-swap");
-  live.paused=true;if(off){live.on=false;live.idx=-1;live.activeMonth=null;$("mom").querySelectorAll(".mom-card").forEach(card=>card.classList.remove("is-hot"));$("monthLegend").querySelectorAll(".legend-row").forEach(row=>row.classList.remove("is-live-hot"));const selected=$("filterMonth").value;$("liveTimeline").querySelectorAll(".live-dot").forEach(dot=>dot.classList.toggle("is-active",Number(dot.dataset.step)===(selected==="All"?-1:live.months.indexOf(selected))))}
-  const progress=$("liveProgress");progress.style.transitionDuration="0ms";
-  if(off){progress.style.width="0%";updateLiveView()}
+  clearLiveTimer();clearLiveStaggers();cancelLiveTransition();
+  live.paused=true;live.state="manual";if(off){live.on=false;live.driving=false;live.idx=-1;live.activeMonth=null;live.hiddenPaused=false;live.resumeAfterHidden=false;$("mom").querySelectorAll(".mom-card").forEach(card=>card.classList.remove("is-hot"));$("monthLegend").querySelectorAll(".legend-row").forEach(row=>row.classList.remove("is-live-hot"));const selected=$("filterMonth").value;$("liveTimeline").querySelectorAll(".live-dot").forEach(dot=>dot.classList.toggle("is-active",Number(dot.dataset.step)===(selected==="All"?-1:live.months.indexOf(selected))))}
+  if(off){$("liveProgress").style.animation="none";updateLiveView()}
 }
-function destroy(id){if(charts[id]){charts[id].destroy();charts[id]=null}}
+let chartRenderMode="all",chartRenderAnimation=null,chartsTouched=new Set();
+function ensureChart(key,canvas,cfg){
+  const mode=isMonth()?"month":"all",plugins=(cfg.plugins||[]).map(plugin=>plugin.id||plugin.name||plugin.constructor?.name||"plugin").join("|"),signature=`${mode}:${plugins}`,existing=charts[key],options={...cfg.options};
+  if(live.rendering&&live.renderAnimation!==null){
+    const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches,duration=reduced?0:live.renderAnimation;
+    options.animation=duration?{...(options.animation||{}),duration,easing:LIVE_EASING,animateRotate:cfg.type==="doughnut"}:false;
+    if(duration)options.animations={...(options.animations||{}),x:{duration,easing:LIVE_EASING,delay:context=>context.type==="data"?context.dataIndex*20:0},y:{duration,easing:LIVE_EASING,delay:context=>context.type==="data"?context.dataIndex*20:0},colors:{type:"color",duration}};
+  }
+  else if(chartRenderAnimation!==null)options.animation=chartRenderAnimation===0?false:{duration:chartRenderAnimation,easing:"easeOutCubic"};
+  cfg={...cfg,options};chartsTouched.add(key);
+  if(existing&&existing.config.type===cfg.type&&existing._pluginSignature===signature){
+    const oldCenter=Number(String(existing.options.plugins?.centerText?.value||"").replace(/,/g,"")),nextCenter=Number(String(cfg.options.plugins?.centerText?.value||"").replace(/,/g,"")),animateCenter=live.rendering&&live.renderAnimation>0&&cfg.type==="doughnut"&&Number.isFinite(oldCenter)&&Number.isFinite(nextCenter);
+    cancelAnimationFrame(existing.$centerRaf);existing.data=cfg.data;existing.options=cfg.options;
+    if(animateCenter){
+      existing.options.plugins.centerText.value=fmt(oldCenter);existing.update();
+      const start=performance.now(),step=now=>{const progress=Math.min(1,(now-start)/TRANS),eased=1-Math.pow(1-progress,3);existing.options.plugins.centerText.value=fmt(oldCenter+(nextCenter-oldCenter)*eased);existing.draw();if(progress<1)existing.$centerRaf=requestAnimationFrame(step);else existing.$centerRaf=0};
+      existing.$centerRaf=requestAnimationFrame(step);
+    }else existing.update();
+    return existing;
+  }
+  const fadeSwitch=!!existing&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&!(live.rendering&&live.renderAnimation===0)&&chartRenderAnimation!==0;
+  if(existing){
+    if(fadeSwitch){
+    const parent=canvas.parentElement,oldCanvas=document.createElement("canvas");
+    oldCanvas.width=canvas.width;oldCanvas.height=canvas.height;oldCanvas.className="chart-transition-old";
+    oldCanvas.style.cssText="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:1;transition:opacity 300ms ease";
+    oldCanvas.getContext("2d")?.drawImage(canvas,0,0);
+    parent.append(oldCanvas);requestAnimationFrame(()=>{oldCanvas.style.opacity="0"});
+    const fadeTimer=setTimeout(()=>{oldCanvas.remove();chartFadeTimers.delete(fadeTimer)},300);chartFadeTimers.add(fadeTimer);
+    }
+    existing.destroy();if(fadeSwitch)canvas.classList.add("chart-transition-in");
+  }
+  const chart=new Chart(canvas,cfg);chart._pluginSignature=signature;
+  if(fadeSwitch)requestAnimationFrame(()=>{if(canvas.isConnected)canvas.classList.remove("chart-transition-in")});
+  return chart;
+}
+function destroy(id){if(charts[id]){cancelAnimationFrame(charts[id].$centerRaf);charts[id].destroy();charts[id]=null}}
+function destroyAllCharts(){Object.keys(charts).forEach(destroy)}
+function setHourCanvas(active){const show=$(active?"hourChart":"distributionChart"),hide=$(active?"distributionChart":"hourChart"),animate=!matchMedia("(prefers-reduced-motion: reduce)").matches&&!(live.rendering&&live.renderAnimation===0)&&chartRenderAnimation!==0;hide.classList.add("chart-inactive");if(animate)show.classList.add("chart-transition-in");show.classList.remove("chart-inactive");if(animate)requestAnimationFrame(()=>show.classList.remove("chart-transition-in"))}
+function setKeyedRows(container,items,keyFor,htmlFor,{fixedRows=0,colspan=1,classFor=()=>""}={}){
+  const oldPositions=new Map([...container.children].map(row=>[row,row.getBoundingClientRect()])),existing=new Map([...container.children].map(row=>[row.dataset.key,row])),ordered=[];
+  items.forEach((item,index)=>{
+    const key=String(keyFor(item,index)),html=htmlFor(item,index);let row=existing.get(key);
+    if(!row){row=document.createElement("tr");row.dataset.key=key;row.classList.add("row-enter");keyedFrame(()=>row.classList.remove("row-enter"))}
+    clearTimeout(keyedRemovalTimers.get(row));keyedRemovalTimers.delete(row);row.classList.remove("row-removing","keyed-removing");row.classList.remove("rank-up","rank-down","rank-new");const motion=classFor(item,index);if(motion)row.classList.add(motion);if(row._h!==html){row._h=html;rewriteRowHTML(row,html)}ordered.push(row);existing.delete(key);
+  });
+  for(let index=items.length;index<fixedRows;index++){const key=`__placeholder-${index}`;let row=existing.get(key);if(!row){row=document.createElement("tr");row.dataset.key=key;row.className="row-placeholder";row.innerHTML=`<td colspan="${colspan}"><i></i></td>`}ordered.push(row);existing.delete(key)}
+  ordered.forEach(row=>container.append(row));
+  ordered.forEach(row=>{const before=oldPositions.get(row);if(!before)return;const after=row.getBoundingClientRect(),dx=before.left-after.left,dy=before.top-after.top;if(dx||dy){row.style.transition="none";row.style.transform=`translate(${dx}px,${dy}px)`;keyedFrame(()=>{row.style.transition="transform 500ms cubic-bezier(.4,0,.2,1)";row.style.transform=""})}});
+  existing.forEach(row=>{row.classList.add("row-removing","keyed-removing");keyedRemovalTimers.set(row,setTimeout(()=>{row.remove();keyedRemovalTimers.delete(row)},300))});
+}
+function setKeyedChildren(container,items,keyFor,htmlFor){
+  const oldPositions=new Map([...container.children].map(node=>[node,node.getBoundingClientRect()])),existing=new Map([...container.children].map(node=>[node.dataset.key,node])),ordered=[];
+  items.forEach((item,index)=>{const key=String(keyFor(item,index)),html=htmlFor(item,index);let node=existing.get(key);if(!node){const template=document.createElement("template");template.innerHTML=html;node=template.content.firstElementChild;node.dataset.key=key;node.classList.add("row-enter");keyedFrame(()=>node.classList.remove("row-enter"))}clearTimeout(keyedRemovalTimers.get(node));keyedRemovalTimers.delete(node);node.classList.remove("keyed-removing");if(node._h!==html){node._h=html;rewriteHTML(node,html.match(/^<[^>]+>([\s\S]*)<\/[^>]+>$/)?.[1]??html);if(live.rendering&&live.renderAnimation>0&&node.classList.contains("legend-row")){node.classList.remove("legend-change");void node.offsetWidth;node.classList.add("legend-change");node.addEventListener("animationend",()=>node.classList.remove("legend-change"),{once:true})}}ordered.push(node);existing.delete(key)});
+  ordered.forEach(node=>container.append(node));ordered.forEach(node=>{const before=oldPositions.get(node);if(!before)return;const after=node.getBoundingClientRect(),dx=before.left-after.left,dy=before.top-after.top;if(dx||dy){node.style.transition="none";node.style.transform=`translate(${dx}px,${dy}px)`;keyedFrame(()=>{node.style.transition="transform 500ms cubic-bezier(.4,0,.2,1)";node.style.transform=""})}});
+  existing.forEach(node=>{node.classList.add("keyed-removing");keyedRemovalTimers.set(node,setTimeout(()=>{node.remove();keyedRemovalTimers.delete(node)},300))});
+}
+const avatarFadeTimers=new Set();
+function rewriteRowHTML(row,html){
+  const template=document.createElement("template");template.innerHTML=`<table><tbody>${html}</tbody></table>`;
+  const incoming=[...template.content.querySelector("tr").cells],existing=[...row.cells];
+  incoming.forEach((next,index)=>{
+    const cell=existing[index];
+    if(!cell){row.append(next);return}
+    const oldBar=cell.querySelector(".mini-bar i");
+    [...cell.attributes].forEach(attribute=>cell.removeAttribute(attribute.name));
+    [...next.attributes].forEach(attribute=>cell.setAttribute(attribute.name,attribute.value));
+    rewriteHTML(cell,next.innerHTML);
+    const newBar=cell.querySelector(".mini-bar i");
+    if(oldBar&&newBar){oldBar.className=newBar.className;oldBar.style.cssText=newBar.style.cssText;newBar.replaceWith(oldBar)}
+  });
+  existing.slice(incoming.length).forEach(cell=>cell.remove());
+}
+function rewriteHTML(el,html){
+  const oldAvatars=new Map([...el.querySelectorAll(".av")].map(avatar=>[avatar.getAttribute("aria-label"),avatar]));
+  el.innerHTML=html;
+  el.querySelectorAll(".av").forEach(parsed=>{
+    const name=parsed.getAttribute("aria-label"),previous=oldAvatars.get(name),cached=avatarCache.get(parsed.dataset.avatarKey),next=cached?.node?cached.node.cloneNode(true):parsed;
+    if(previous&&previous.outerHTML===parsed.outerHTML){parsed.replaceWith(previous);oldAvatars.delete(name);return}
+    parsed.replaceWith(next);
+    if(previous){const fading=previous.cloneNode(true);fading.classList.add("av-mood-old");fading.setAttribute("aria-hidden","true");fading.removeAttribute("role");fading.removeAttribute("aria-label");next.parentNode.insertBefore(fading,next);const timer=setTimeout(()=>{fading.remove();avatarFadeTimers.delete(timer)},250);avatarFadeTimers.add(timer)}
+    oldAvatars.delete(name);
+  });
+}
+function renderDashboard(rows){
+  live.renderRows=rows;
+  if(live.renderFrame!==null)return;
+  live.renderFrame=requestAnimationFrame(()=>{
+    live.renderFrame=null;chartsTouched=new Set();chartRenderMode=isMonth()?"month":"all";live.rendering=true;
+    try{renderDashboardNow(live.renderRows)}finally{
+      live.rendering=false;
+      Object.keys(charts).forEach(key=>{if(charts[key]&&!chartsTouched.has(key)&&((chartRenderMode==="all"&&["pace"].includes(key))||(chartRenderMode==="month"&&["mom"].includes(key))))destroy(key)});
+      live.renderAnimation=null;chartRenderAnimation=null;
+      if(live.renderStepToken!==null&&live.renderStepToken===live.transitionToken){live.renderStepToken=null;beginLiveChoreography(live.transitionToken)}
+    }
+  });
+}
 function showToast(title,text,type="success",duration=4200){const toast=$("toast"),icon=$("toastIcon");clearTimeout(window._toast);clearTimeout(window._toastHide);$("toastTitle").textContent=title;$("toastText").textContent=text;icon.className="toast-icon"+(type==="warning"?" warning":type==="error"?" error":"");icon.textContent=type==="warning"?"!":type==="error"?"✕":"✓";toast.classList.toggle("error",type==="error");toast.classList.remove("hide");toast.classList.add("show");window._toast=setTimeout(()=>{toast.classList.add("hide");window._toastHide=setTimeout(()=>toast.classList.remove("show","hide"),420)},type==="error"?6000:duration)}
 function theme(){return document.documentElement.dataset.theme||"light"}
 function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem("yitran-dashboard-theme",t);const dark=t==="dark";$("brandLogo").src=dark?DARK_LOGO:LIGHT_LOGO;$("landingLogo").src=dark?DARK_LOGO:LIGHT_LOGO;[$("landingThemeBtn"),$("themeBtn")].forEach(button=>button.classList.toggle("is-dark",dark));$("landingThemeBtn").setAttribute("aria-label",dark?"Switch to light theme":"Switch to dark theme");$("themeBtn").setAttribute("aria-label",dark?"Switch to light theme":"Switch to dark theme")}
-function toggleTheme(){setTheme(theme()==="dark"?"light":"dark");if(allRows.length>0){requestAnimationFrame(()=>renderDashboard(getFilteredRows()))}}
+function toggleTheme(){if(live.transitioning)finishLiveTransition(live.transitionToken);setTheme(theme()==="dark"?"light":"dark");if(allRows.length>0){chartRenderAnimation=0;live.renderAnimation=0;requestAnimationFrame(()=>renderDashboard(getFilteredRows()))}}
 function setupTheme(){setTheme(localStorage.getItem("yitran-dashboard-theme")||"light");$("landingThemeBtn").onclick=toggleTheme;$("themeBtn").onclick=toggleTheme}
 
 function calc(rows){
@@ -504,7 +742,7 @@ function populateFilters(){
   if(months.includes(oldMonth))monthSelect.value=oldMonth;
   syncFilterState();
 }
-function syncFilterState(){const ids=["filterMonth","filterSub","filterInst","filterPhase","filterMeter"];let active=0;ids.forEach(id=>{const select=$(id),selected=select.value!=="All";select.classList.toggle("is-active",selected);if(selected)active++});$("resetFilters").disabled=!active;$("filterCount").textContent=String(active);$("filterCount").title=`${active} active filter${active===1?"":"s"}`;$("filterCount").hidden=!active;$("filterToggle").setAttribute("aria-label",active?`Filters, ${active} active`:"Filters")}
+function syncFilterState(){const ids=["filterMonth","filterSub","filterInst","filterPhase","filterMeter"];let active=0;ids.forEach(id=>{const select=$(id),selected=select.value!=="All"&&!(id==="filterMonth"&&live.on&&live.driving);select.classList.toggle("is-active",selected);if(selected)active++});$("resetFilters").disabled=!active;setText($("filterCount"),String(active));$("filterCount").title=`${active} active filter${active===1?"":"s"}`;$("filterCount").hidden=!active;$("filterToggle").setAttribute("aria-label",active?`Filters, ${active} active`:"Filters")}
 function heatClass(v,max){if(!v)return"hm0";const p=v/max;return p<.13?"hm1":p<.26?"hm2":p<.4?"hm3":p<.55?"hm4":p<.7?"hm5":p<.84?"hm6":p<.94?"hm7":"hm8"}
 const isMonth=()=>$("filterMonth").value!=="All";
 function monthRows(key){const sub=$("filterSub").value,inst=$("filterInst").value,phase=$("filterPhase").value,meter=$("filterMeter").value;return allRows.filter(row=>row.dt&&monthKey(row.dt)===key&&(sub==="All"||row.sub===sub)&&(inst==="All"||row.inst===inst)&&(phase==="All"||row.phase===phase)&&(meter==="All"||row.meter===meter))}
@@ -533,7 +771,7 @@ function calcMonth(rows,key,prevRows){
   const activeDays=days.filter(item=>item.count>0).length,activeInstallers=Object.keys(installerCounts).length,avgDay=activeDays?total/activeDays:0,avgInstallerDay=activeInstallers&&activeDays?total/(activeInstallers*activeDays):0;
   const peakDay=days.reduce((best,item)=>item.count>best.count?item:best,{day:null,count:0}),bestWeek=weeks.reduce((best,item)=>item.count>best.count?item:best,{label:"—",count:0,days:0}),busyWeekday=weekdayNames.reduce((best,day)=>weekdays[day]>weekdays[best]?day:best,weekdayNames[0]),busyHour=Object.entries(hours).reduce((best,[hour,count])=>count>best.count?{hour:Number(hour),count}:best,{hour:null,count:0}),cutoff=Math.min(endDay||daysInMonth,daysInMonth),prevTotal=prevRows.filter(row=>row.dt&&row.dt.getUTCDate()<=cutoff).length,delta=prevTotal?((total-prevTotal)/prevTotal)*100:null;
   const prevActiveDays=new Set(prevRows.filter(row=>row.dt&&row.dt.getUTCDate()<=cutoff).map(row=>dayKey(row.dt))).size,prevAvgDay=prevActiveDays?prevTotal/prevActiveDays:0,avgDelta=prevAvgDay?((avgDay-prevAvgDay)/prevAvgDay)*100:null;
-  const currentRanks=Object.entries(installerCounts).sort((a,b)=>b[1]-a[1]).map(([name])=>name),prevRanks=Object.entries(prevRows.filter(row=>row.dt&&row.dt.getUTCDate()<=cutoff).reduce((acc,row)=>{acc[row.inst]=(acc[row.inst]||0)+1;return acc},{})).sort((a,b)=>b[1]-a[1]).map(([name])=>name),rankChanges=Object.fromEntries(currentRanks.map((name,index)=>{const previous=prevRanks.indexOf(name);return[name,previous<0?{label:"NEW",change:null}:{label:previous>index?`▲${previous-index}`:previous<index?`▼${index-previous}`:"—",change:previous-index}]}));
+  const currentRanks=Object.entries(installerCounts).sort((a,b)=>b[1]-a[1]).map(([name])=>name),prevCounts=prevRows.reduce((acc,row)=>{acc[row.inst]=(acc[row.inst]||0)+1;return acc},{}),prevRanks=Object.entries(prevCounts).sort((a,b)=>b[1]-a[1]).map(([name])=>name),rankChanges=Object.fromEntries(currentRanks.map((name,index)=>{const previous=prevRanks.indexOf(name);return[name,!prevCounts[name]?{label:"NEW",change:null}:{label:previous>index?`▲${previous-index}`:previous<index?`▼${index-previous}`:"–",change:previous-index}]}));
   return{key,total,days,daysInMonth,axisStart,endDay,weeks,hours,dateOnly,otherHours,dailySeries,ma7,cum,prevCum,prevTotal,delta,avgDelta,peakDay,bestWeek,weekdays,busyWeekday,activeDays,avgDay,activeInstallers,avgInstallerDay,installers:Object.entries(installerCounts).sort((a,b)=>b[1]-a[1]),weeklyInstallers,rankChanges,busyHour};
 }
 
@@ -560,34 +798,56 @@ let chartResizeTimer=null,lastRenderedRoot=Math.round(rootPx());
 let spotlightFrame=0,spotlightPoint=null;
 function setupSpotlight(){const dashboard=$("dashboard");if(!dashboard||dashboard.dataset.spotlightReady)return;dashboard.dataset.spotlightReady="true";dashboard.addEventListener("pointermove",event=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches||matchMedia("(hover: none)").matches)return;const card=event.target.closest?.(".kpi,.panel");if(!card)return;spotlightPoint={card,x:event.clientX,y:event.clientY};if(spotlightFrame)return;spotlightFrame=requestAnimationFrame(()=>{spotlightFrame=0;const point=spotlightPoint;if(!point||!point.card.isConnected)return;const rect=point.card.getBoundingClientRect();point.card.style.setProperty("--mx",`${point.x-rect.left}px`);point.card.style.setProperty("--my",`${point.y-rect.top}px`)})})}
 let kpiVizDrawn=false,kpiVizIntroTimer=null;
+const avatarCache=new Map();let prevRanks=new Map(),rankAnimationTimers=[];
+function rankMotion(name,index){if(!prevRanks.size)return"";const previous=prevRanks.get(name),rank=index+1;return previous===undefined?"rank-new":previous>rank?"rank-up":previous<rank?"rank-down":""}
+function finishRankRender(installers){
+  rankAnimationTimers.forEach(clearTimeout);rankAnimationTimers=[];
+  document.querySelectorAll(".top-table tr.rank-up,.top-table tr.rank-down,.top-table tr.rank-new,.heat tr.rank-up,.heat tr.rank-down,.heat tr.rank-new").forEach(row=>rankAnimationTimers.push(setTimeout(()=>row.classList.remove("rank-up","rank-down","rank-new"),1200)));
+  prevRanks=new Map(installers.slice(0,10).map(([name],index)=>[name,index+1]));
+}
 function calendarMonths(months){if(!months.length)return[];const [firstYear,firstMonth]=months[0].split("-").map(Number),[lastYear,lastMonth]=months[months.length-1].split("-").map(Number),result=[];let year=firstYear,month=firstMonth;while(year<lastYear||(year===lastYear&&month<=lastMonth)){result.push(`${year}-${String(month).padStart(2,"0")}`);if(++month===13){month=1;year++}}return result}
-function avatar(name){const words=String(name??"").trim().split(/\s+/).filter(Boolean),initials=words.length>1?words[0][0]+words.at(-1)[0]:(words[0]||"?").slice(0,2);let hash=0;for(const character of String(name??""))hash=(hash*31+character.charCodeAt(0))|0;return `<span class="av" style="--h:${Math.abs(hash)%361}">${esc(initials.toUpperCase())}</span>`}
-function updateFreshness(){const fresh=$("fresh"),label=$("freshText");if(!dataEnd){label.textContent="";fresh.dataset.age="stale";return}const now=new Date(),today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()),end=Date.UTC(dataEnd.getUTCFullYear(),dataEnd.getUTCMonth(),dataEnd.getUTCDate()),age=Math.max(0,Math.floor((today-end)/86400000)),through=dataEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}),relative=age===0?"today":age===1?"1 day ago":`${age} days ago`;label.textContent=`Data through ${through} · ${relative}`;fresh.dataset.age=age<=2?"fresh":age<=14?"recent":"stale"}
+function avatar(name,rank,n){
+  const label=String(name??""),mood=rank===undefined ? .7 : n>1 ? 1-(rank-1)/(n-1) : 1,moodBucket=Math.round(mood*10)/10,key=`${label}|${moodBucket.toFixed(1)}`,topMood=rank!==undefined&&rank<=3,lowMood=rank!==undefined&&rank!==1&&n-rank<2,expressionStyle=`${rank===1?"first":""}|${topMood}|${lowMood}|${rank===n}|${rank===undefined}`,cached=avatarCache.get(key);if(cached?.expressionStyle===expressionStyle)return cached.svg;
+  let signed=0;for(const character of label)signed=(signed*31+character.charCodeAt(0))|0;const hash=signed>>>0,hue=Math.abs(signed)%361,pick=shift=>(hash>>>shift),skins=["#f2c6a0","#dfaa7b","#c8875b","#a96746","#75452f"],hairColors=["#2f2420","#51382d","#19191d","#8a5736","#d0a24e","#b9c1c8"],shirtColors=["#126dde","#21a56e","#f29a15","#7b4bd0","#e0566b","#2bb7d6"],skin=skins[pick(0)%skins.length],hairColor=hairColors[pick(4)%hairColors.length],shirt=shirtColors[pick(8)%shirtColors.length],hairStyle=pick(12)%6,accessory=pick(24)%8;
+  const starEyes=rank===1,happyEyes=rank!==undefined&&rank>1&&rank<=3,droopyEyes=rank!==undefined&&n-rank<2,browOuter=(16.5+(1-mood)*1.5).toFixed(1),browInner=(16.5-(1-mood)*2.5).toFixed(1),browArch=(14.8+(1-mood)*2).toFixed(1),mouthControl=(mood<=.4?24.5+mood/.4*2.5:27+(mood-.4)/.6*4).toFixed(1);
+  const hairBack=hairStyle===1?`<path fill="${hairColor}" d="M7 18C7 9 12 5 20 5s13 5 13 13v14h-6V18H13v14H7z"/>`:hairStyle===2?`<circle cx="20" cy="6" r="5" fill="${hairColor}"/>`:hairStyle===3?Array.from({length:7},(_,i)=>`<circle cx="${8+i*4}" cy="${i%2?8:10}" r="4" fill="${hairColor}"/>`).join("")+`<path fill="${hairColor}" d="M7 12h26v8H7z"/>`:"";
+  const hairFront=hairStyle===0?`<path fill="${hairColor}" d="M8 18C8 9 13 6 20 6s12 4 12 12l-5-4-3 3-4-4-5 4z"/>`:hairStyle===3?`<circle cx="10" cy="14" r="4" fill="${hairColor}"/><circle cx="17" cy="11" r="4" fill="${hairColor}"/><circle cx="24" cy="11" r="4" fill="${hairColor}"/><circle cx="30" cy="14" r="4" fill="${hairColor}"/>`:hairStyle===4?`<path fill="${hairColor}" d="M6 15C7 7 13 4 21 4s13 4 14 11H6z"/><path fill="${hairColor}" d="M20 13h16v3H20z"/>`:"";
+  const eyes=starEyes?`<path d="m15 18 .8 2 2.2.2-1.7 1.3.6 2.2-1.9-1.2-1.9 1.2.6-2.2-1.7-1.3 2.2-.2zm10 0 .8 2 2.2.2-1.7 1.3.6 2.2-1.9-1.2-1.9 1.2.6-2.2-1.7-1.3 2.2-.2z" fill="#25201d"/>`:happyEyes?`<path d="M12.5 21q2.5-4 5 0m3 0q2.5-4 5 0" fill="none" stroke="#25201d" stroke-width="1.7" stroke-linecap="round"/>`:droopyEyes?`<path d="M13 22q2-1 4 1m4 0q2-2 4-1" fill="none" stroke="#25201d" stroke-width="1.7" stroke-linecap="round"/>`:`<circle cx="15" cy="21" r="1.35" fill="#25201d"/><circle cx="25" cy="21" r="1.35" fill="#25201d"/>`;
+  const brows=`<path d="M12.5 ${browOuter}Q15 ${browArch} 17.5 ${browInner}m5 0Q25 ${browArch} 27.5 ${browOuter}" fill="none" stroke="${hairColor}" stroke-width="1.4" stroke-linecap="round"/>`,mouth=`<g class="avatar-mouth"><path d="M15 27Q20 ${mouthControl} 25 27" fill="none" stroke="#804a45" stroke-width="1.7" stroke-linecap="round"/>${rank===1?`<path d="M17 27.4Q20 29 23 27.4l-.5 2H17.5z" fill="#fff"/>`:""}</g><path class="avatar-mouth-hover" d="M15 27Q20 32 25 27" fill="none" stroke="#804a45" stroke-width="1.8" stroke-linecap="round"/>`;
+  const accessoryShape=accessory<4?"":accessory<6?`<g fill="none" stroke="#27313b" stroke-width="1.4"><rect x="10.5" y="18.5" width="8" height="5.5" rx="2"/><rect x="21.5" y="18.5" width="8" height="5.5" rx="2"/><path d="M18.5 20h3"/></g>`:accessory===6?`<path d="M9 15h22" stroke="${shirt}" stroke-width="3"/>`:`<path d="M15 26q5-5 10 0l-1 2q-4-2-8 0z" fill="${hairColor}"/>`;
+  const rankClass=rank===undefined?"rank-mid":starEyes?"rank-1":lowMood?"rank-low":rank===2?"rank-2":rank===3?"rank-3":"rank-mid",blinkDuration=(3+pick(28)%4).toFixed(1)+"s",blinkDelay="-"+(pick(12)%6)+"s",idleDelay="-"+(pick(20)%24/10).toFixed(1)+"s",cheeks=topMood?`<circle cx="11" cy="26" r="2" fill="#ed8c8b" opacity=".48"/><circle cx="29" cy="26" r="2" fill="#ed8c8b" opacity=".48"/>`:"",extras=lowMood?`<path class="avatar-sweat" d="M32 21c-3 4-3 6 0 7s3-3 0-7z" fill="#62bde5" opacity=".85"/>${rank===n?'<path class="avatar-tear" d="M27 23c-2 3-2 5 0 6s2-3 0-6z" fill="#73c9ee" opacity=".5"/>':""}`:"",sparkle=starEyes?`<path class="avatar-sparkle" d="M31 7v4m-2-2h4" stroke="#fff4a8" stroke-width="1.5" stroke-linecap="round"/>`:"";
+  const moodChanged=[...avatarCache.keys()].some(cachedKey=>cachedKey.startsWith(`${label}|`)&&cachedKey!==key),svg=`<svg class="av ${rankClass}${moodChanged?" mood-change":""}" data-avatar-key="${esc(key)}" viewBox="0 0 40 40" role="img" aria-label="${esc(label)}" style="--h:${hue};--blink-delay:${blinkDelay};--blink-duration:${blinkDuration};--idle-delay:${idleDelay}"><circle cx="20" cy="20" r="20" fill="transparent"/><path d="M3 41q2-13 17-13t17 13" fill="${shirt}"/>${hairBack}<ellipse cx="20" cy="22" rx="11" ry="13" fill="${skin}"/><path d="M9 22q-4-2-3 3 1 3 4 2m21-5q4-2 3 3-1 3-4 2" fill="${skin}"/>${hairFront}${cheeks}<g class="avatar-eyes">${eyes}</g>${brows}${mouth}${extras}${accessoryShape}${sparkle}<g class="avatar-crown" fill="#f5bd35" stroke="#8a5a08" stroke-width=".7"><path d="m14 10 1.5-4 3 2 2-4 2 4 3-2 1.5 4z"/><path d="M15 11h10v1H15z"/></g></svg>`,template=document.createElement("template");
+  template.innerHTML=svg;avatarCache.set(key,{expressionStyle,svg,node:template.content.firstElementChild});return svg;
+}
+function updateFreshness(){const fresh=$("fresh"),label=$("freshText");if(!dataEnd){setText(label,"");fresh.dataset.age="stale";return}const now=new Date(),today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()),end=Date.UTC(dataEnd.getUTCFullYear(),dataEnd.getUTCMonth(),dataEnd.getUTCDate()),age=Math.max(0,Math.floor((today-end)/86400000)),through=dataEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}),relative=age===0?"today":age===1?"1 day ago":`${age} days ago`;setText(label,`Data through ${through} · ${relative}`);fresh.dataset.age=age<=2?"fresh":age<=14?"recent":"stale"}
 function decorateInsights(){const icons=[['var(--blue)','<path d="M4 19V5m0 14h16M8 15v-4m4 4V7m4 8V9"/>'],['var(--green)','<path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/>'],['var(--orange)','<path d="M8 21h8m-4-4v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4v2a4 4 0 0 0 4 4m9-6h3v2a4 4 0 0 1-4 4"/>'],['var(--purple)','<path d="M21 12a9 9 0 1 1-9-9v9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>'],['var(--blue2)','<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>'],['var(--blue)','<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'],['var(--muted)','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>']];$("insights").querySelectorAll("li").forEach((item,index)=>{if(item.querySelector(".insight-icon"))return;const [color,path]=icons[Math.min(index,icons.length-1)];item.innerHTML='<span class="insight-text">'+item.innerHTML+'</span>';item.insertAdjacentHTML("afterbegin",`<span class="insight-icon" style="--icon:${color}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${path}</svg></span>`)})}
 function monthTitle(key){const [year,month]=key.split("-");return `${monthNames[Number(month)-1]} ${year}`}
 function updateKpiVisuals(c,top,total){
+  document.querySelector(".kpi.purple").classList.toggle("is-month-mode",!!c.monthMode);
   if(c.monthMode){
+    $("vizTop3Podium").hidden=true;
     const month=c.monthData,series=month.days.map(item=>item.count),maximum=Math.max(1,...series),minimum=Math.min(0,...series),points=series.map((value,index)=>[series.length===1?80:8+index*144/(series.length-1),36-(value-minimum)/(maximum-minimum||1)*27]),path=points.map(([x,y],index)=>`${index?"L":"M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" "),area=points.length?path+` L${points.at(-1)[0]} 42 L${points[0][0]} 42 Z`:"",spark=`<svg viewBox="0 0 160 44" preserveAspectRatio="none"><defs><linearGradient id="vizTotalFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".18"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#vizTotalFill)"/><path class="viz-line" d="${path}" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="${points.at(-1)?.[0]??8}" cy="${points.at(-1)?.[1]??36}" r="2.7" fill="currentColor"/></svg>`;
     const dotEnd=month.key===partialKey?month.endDay:month.daysInMonth,dots=Array.from({length:dotEnd},(_,index)=>{const day=index+1,count=month.days.find(item=>item.day===day)?.count||0,x=4+day*152/Math.max(1,dotEnd);return`<circle class="viz-dot" cx="${x.toFixed(1)}" cy="22" r="2.2" fill="${count?"currentColor":"none"}" stroke="currentColor" stroke-width="1"><title>${monthNames[Number(month.key.split("-")[1])-1]} ${day}: ${fmt(count)} installations</title></circle>`}).join(""),monthDots=`<svg viewBox="0 0 160 44" preserveAspectRatio="none">${dots}</svg>`;
-    const share=Math.max(0,Math.min(100,(top[1]/total)*100)),ring=`<svg viewBox="0 0 100 44" preserveAspectRatio="xMidYMid meet"><circle cx="22" cy="22" r="16" fill="none" stroke="color-mix(in srgb,var(--k) 20%,var(--border))" stroke-width="5"/><circle class="viz-ring" cx="22" cy="22" r="16" pathLength="100" fill="none" stroke="var(--k)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${share} 100" transform="rotate(-90 22 22)"/><text x="22" y="25" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text)">${share.toFixed(1)}%</text></svg>`;
-    const peakBars=month.days.map((item,index)=>{const width=146/Math.max(1,month.days.length),barWidth=Math.min(6,width*.58),height=Math.max(item.count?2:0,item.count/maximum*29),x=2+index*width+(width-barWidth)/2,y=38-height;return`<rect class="viz-scale" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${height.toFixed(1)}" rx="1.2" fill="${item.day===month.peakDay.day?"var(--k)":"color-mix(in srgb,var(--k) 35%,transparent)"}"><title>Day ${item.day}: ${fmt(item.count)}</title></rect>`}).join("");
-    const meanWidth=month.dailySeries.length?Math.min(144,month.avgDay/maximum*144):0,meanVisual=`<rect x="8" y="17" width="144" height="10" rx="2" fill="var(--border)"/><rect class="viz-scale" x="8" y="17" width="${meanWidth.toFixed(1)}" height="10" rx="2" fill="var(--purple)"><title>Daily average: ${month.avgDay.toFixed(1)} installations</title></rect>`;
+    const share=Math.max(0,Math.min(100,(top[1]/total)*100)),ring=`<svg viewBox="0 0 44 44"><title>${share.toFixed(1)}% of total installations</title><circle cx="22" cy="22" r="17" fill="none" stroke="color-mix(in srgb,var(--k) 20%,var(--border))" stroke-width="5.5"/><circle class="viz-ring" cx="22" cy="22" r="17" pathLength="100" fill="none" stroke="var(--k)" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="${share} 100" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="var(--text)">${share.toFixed(1)}%</text></svg>`;
+    const peakBars=month.days.map((item,index)=>{const width=146/Math.max(1,month.days.length),barWidth=Math.max(3,Math.min(10,width*.58)),height=Math.max(3,item.count/maximum*29),x=2+index*width+(width-barWidth)/2,y=38-height;return`<rect class="viz-scale" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${height.toFixed(1)}" rx="1.5" fill="${item.day===month.peakDay.day?"var(--k)":"color-mix(in srgb,var(--k) 50%,transparent)"}"><title>Day ${item.day}: ${fmt(item.count)}</title></rect>`}).join("");
+    const meanWidth=month.dailySeries.length?Math.min(144,month.avgDay/maximum*144):0,meanVisual=`<rect x="8" y="15" width="144" height="14" rx="3" fill="var(--border)"/><rect class="viz-scale" x="8" y="15" width="${meanWidth.toFixed(1)}" height="14" rx="3" fill="var(--purple)"><title>Daily average: ${month.avgDay.toFixed(1)} installations</title></rect>`;
     const visuals={vizTotal:spark,vizMonths:monthDots,vizTop:ring,vizPeak:`<svg viewBox="0 0 160 44" preserveAspectRatio="none">${peakBars}</svg>`,vizTop3:`<svg viewBox="0 0 160 44" preserveAspectRatio="xMidYMid meet">${meanVisual}</svg>`},animate=!kpiVizDrawn&&!matchMedia("(prefers-reduced-motion: reduce)").matches;
     if(kpiVizIntroTimer){clearTimeout(kpiVizIntroTimer);kpiVizIntroTimer=null}
-    Object.entries(visuals).forEach(([id,svg])=>{$(id).innerHTML=svg;$(id).classList.toggle("intro",animate)});
+    Object.entries(visuals).forEach(([id,svg])=>{setHTML($(id),svg);$(id).classList.toggle("intro",animate)});
     if(animate)kpiVizIntroTimer=setTimeout(()=>{Object.keys(visuals).forEach(id=>$(id).classList.remove("intro"));kpiVizIntroTimer=null},650);
     kpiVizDrawn=true;return;
   }
   const keys=calendarMonths(c.months),series=c.months.map(month=>c.mc[month]),maxSeries=Math.max(1,...series),minSeries=Math.min(0,...series),sparkPoints=series.map((value,index)=>{const x=series.length===1?80:8+index*144/(series.length-1),y=36-(value-minSeries)/(maxSeries-minSeries||1)*27;return[x,y]}),sparkPath=sparkPoints.map(([x,y],index)=>`${index?"L":"M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" "),sparkArea=sparkPoints.length?sparkPath+` L${sparkPoints.at(-1)[0]} 42 L${sparkPoints[0][0]} 42 Z`:"";
   const spark=`<svg viewBox="0 0 160 44" preserveAspectRatio="none"><defs><linearGradient id="vizTotalFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".18"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="${sparkArea}" fill="url(#vizTotalFill)"/><path class="viz-line" pathLength="1" d="${sparkPath}" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".9"/><circle cx="${sparkPoints.at(-1)?.[0]??152}" cy="${sparkPoints.at(-1)?.[1]??36}" r="2.7" fill="currentColor"/></svg>`;
-  const dots=keys.map((key,index)=>{const x=10+index*140/Math.max(1,keys.length-1),active=Object.hasOwn(c.mc,key),partial=key===partialKey;return `<circle class="viz-dot" cx="${x.toFixed(1)}" cy="22" r="5" fill="${active?"currentColor":"none"}" stroke="currentColor" stroke-width="1.7"${partial?' stroke-dasharray="2 2"':""}><title>${esc(monthTitle(key))}${partial?" · month to date":""}${active?" · installations recorded":" · no installations"}</title></circle>`}).join("");
+  const dots=keys.map((key,index)=>{const x=10+index*140/Math.max(1,keys.length-1),active=Object.hasOwn(c.mc,key),partial=key===partialKey;return `<circle class="viz-dot" cx="${x.toFixed(1)}" cy="22" r="6" fill="${active?"currentColor":"none"}" stroke="currentColor" stroke-width="1.7"${partial?' stroke-dasharray="2 2"':""}><title>${esc(monthTitle(key))}${partial?" · month to date":""}${active?" · installations recorded":" · no installations"}</title></circle>`}).join("");
   const monthDots=`<svg viewBox="0 0 160 44" preserveAspectRatio="xMidYMid meet">${dots}</svg>`;
-  const share=Math.max(0,Math.min(100,(top[1]/total)*100)),ring=`<svg viewBox="0 0 100 44" preserveAspectRatio="xMidYMid meet"><circle cx="22" cy="22" r="16" fill="none" stroke="color-mix(in srgb,var(--k) 20%,var(--border))" stroke-width="5"/><circle class="viz-ring" cx="22" cy="22" r="16" pathLength="100" fill="none" stroke="var(--k)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${share} 100" transform="rotate(-90 22 22)"/><text x="22" y="25" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text)">${share.toFixed(1)}%</text></svg>`;
-  const peakBars=c.months.map((key,index)=>{const width=146/Math.max(1,c.months.length),barWidth=Math.min(10,width*.58),height=Math.max(2,c.mc[key]/maxSeries*29),x=2+index*width+(width-barWidth)/2,y=38-height;return `<rect class="viz-scale" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${height.toFixed(1)}" rx="1.5" fill="${key===c.peak[0]?"var(--k)":"color-mix(in srgb,var(--k) 35%,transparent)"}"><title>${esc(monthTitle(key))}: ${fmt(c.mc[key])}</title></rect>`}).join("");
-  let segmentX=8;const segmentColors=["var(--blue)","var(--green)","var(--orange)"],segments=c.installers.slice(0,3).map(([name,value],index)=>{const width=Math.min(144-segmentX+8,value/total*144),x=segmentX;segmentX+=width;return `<rect class="viz-scale" x="${x.toFixed(1)}" y="17" width="${Math.max(0,width).toFixed(1)}" height="10" rx="2" fill="${segmentColors[index]}"><title>${esc(name)}: ${((value/total)*100).toFixed(1)}%</title></rect>`}).join(""),remainder=`<rect class="viz-scale" x="${segmentX.toFixed(1)}" y="17" width="${Math.max(0,152-segmentX).toFixed(1)}" height="10" rx="2" fill="var(--border)"><title>Remaining installations</title></rect>`;
-  const visuals={vizTotal:spark,vizMonths:monthDots,vizTop:ring,vizPeak:`<svg viewBox="0 0 160 44" preserveAspectRatio="none">${peakBars}</svg>`,vizTop3:`<svg viewBox="0 0 160 44" preserveAspectRatio="xMidYMid meet">${segments}${remainder}</svg>`},animate=!kpiVizDrawn&&!matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const share=Math.max(0,Math.min(100,(top[1]/total)*100)),ring=`<svg viewBox="0 0 44 44"><title>${share.toFixed(1)}% of total installations</title><circle cx="22" cy="22" r="17" fill="none" stroke="color-mix(in srgb,var(--k) 20%,var(--border))" stroke-width="5.5"/><circle class="viz-ring" cx="22" cy="22" r="17" pathLength="100" fill="none" stroke="var(--k)" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="${share} 100" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="var(--text)">${share.toFixed(1)}%</text></svg>`;
+  const peakBars=c.months.map((key,index)=>{const width=146/Math.max(1,c.months.length),barWidth=Math.max(3,Math.min(10,width*.58)),height=Math.max(3,c.mc[key]/maxSeries*29),x=2+index*width+(width-barWidth)/2,y=38-height;return `<rect class="viz-scale" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${height.toFixed(1)}" rx="1.5" fill="${key===c.peak[0]?"var(--k)":"color-mix(in srgb,var(--k) 50%,transparent)"}"><title>${esc(monthTitle(key))}: ${fmt(c.mc[key])}</title></rect>`}).join("");
+  const topThree=c.installers.slice(0,3),podiumColors=["#d6a326","#98a6b5","#b66e3d"],podiumItems=topThree.map(([name,value],index)=>({name,value,rank:index+1,share:value/total*100})),maxPodiumShare=Math.max(1,...podiumItems.map(item=>item.share)),podiumPositions=[{x:5,rank:2},{x:32,rank:1},{x:59,rank:3}],podiumBars=podiumPositions.map(({x,rank})=>{const item=podiumItems[rank-1];if(!item)return"";const height=Math.max(11,item.share/maxPodiumShare*46),y=63-height;return`<g><rect class="viz-scale" x="${x}" y="${y.toFixed(1)}" width="20" height="${height.toFixed(1)}" rx="4" fill="${podiumColors[rank-1]}"><title>${esc(item.name)} · ${fmt(item.value)} · ${item.share.toFixed(1)}%</title></rect><text x="${x+10}" y="${(y+height/2+3).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="11" font-weight="800" pointer-events="none">${rank}</text></g>`}).join(""),podium=`<svg viewBox="0 0 84 68">${podiumBars}<path d="M3 64h78" stroke="color-mix(in srgb,var(--k) 45%,var(--border))" stroke-width="1.5" stroke-linecap="round"/></svg>`,chips=podiumItems.map(item=>`<span class="top3-chip top3-rank-${item.rank}" title="${esc(item.name)} · ${fmt(item.value)} · ${item.share.toFixed(1)}%">${avatar(item.name,item.rank,c.installers.slice(0,10).length)}<span class="top3-name">${esc(item.name.trim().split(/\s+/)[0])}</span><b>${item.share.toFixed(1)}%</b></span>`).join("");
+  $("vizTop3Podium").hidden=false;
+  const visuals={vizTotal:spark,vizMonths:monthDots,vizTop:ring,vizPeak:`<svg viewBox="0 0 160 44" preserveAspectRatio="none">${peakBars}</svg>`,vizTop3:chips,vizTop3Podium:podium},animate=!kpiVizDrawn&&!matchMedia("(prefers-reduced-motion: reduce)").matches;
   if(kpiVizIntroTimer){clearTimeout(kpiVizIntroTimer);kpiVizIntroTimer=null}
-  Object.entries(visuals).forEach(([id,svg])=>{$(id).innerHTML=svg;$(id).classList.toggle("intro",animate)});
+  Object.entries(visuals).forEach(([id,svg])=>{setHTML($(id),svg);$(id).classList.toggle("intro",animate)});
   if(animate)kpiVizIntroTimer=setTimeout(()=>{Object.keys(visuals).forEach(id=>$(id).classList.remove("intro"));kpiVizIntroTimer=null},650);
   kpiVizDrawn=true;
 }
@@ -596,101 +856,116 @@ const subColors=["#1267bd","#2bb7d6","#21a56e","#f29a15","#7b4bd0","#e0566b","#5
 function renderMonthDashboard(){
   lastRenderedRoot=Math.round(rootPx());
   const key=$("filterMonth").value,selectedRows=monthRows(key),previousKey=prevKey(key),previousRows=previousKey?monthRows(previousKey):[],m=calcMonth(selectedRows,key,previousRows),c=calc(selectedRows),total=Math.max(1,m.total),monthName=monthTitle(key),partial=key===partialKey,top=c.installers[0]||["—",0],cutoff=m.endDay||m.daysInMonth;
-  $("ttlTrend").textContent=`Daily Installations · ${monthName}${partial?" MTD":""}`;$("ttlContrib").textContent="Weekly Contribution";$("ttlSummary").textContent="Weekly Summary";$("ttlDist").textContent="Hourly Profile";$("ttlMom").textContent="Cumulative Pace";
-  $("kMonthsL").textContent="Active Days";$("kPeakL").textContent="Peak Day";$("kTop3L").textContent="Daily Average";
+  setText($("ttlTrend"),`Daily Installations · ${monthName}${partial?" MTD":""}`);setText($("ttlContrib"),"Weekly Contribution");setText($("ttlSummary"),"Weekly Summary");setText($("ttlDist"),"Hourly Profile");setText($("ttlMom"),"Cumulative Pace");
+  setText($("kMonthsL"),"Active Days");setText($("kPeakL"),"Peak Day");setText($("kTop3L"),"Daily Average");
   countTo($("kTotal"),m.total);
   const deltaText=m.delta===null?"—":`${m.delta>=0?"▲":"▼"} ${Math.abs(m.delta).toFixed(1)}% vs ${previousKey?monthTitle(previousKey):"—"}`;
-  $("kUnique").textContent=deltaText;$("kMonths").textContent=fmt(m.activeDays);$("kMonthsSub").textContent=`${fmt(m.activeDays)} of ${fmt(cutoff)} days`;
-  $("kTop").textContent=top[0];$("kTopSub").textContent=fmt(top[1])+" installations";
-  $("kPeak").textContent=m.peakDay.day?`${String(m.peakDay.day).padStart(2,"0")} ${monthNames[Number(key.split("-")[1])-1]}`:"—";$("kPeakSub").textContent=fmt(m.peakDay.count)+" installations";
-  $("kTop3").textContent=m.activeDays?m.avgDay.toFixed(1):"—";$("kTop3Sub").textContent=m.avgDelta===null?"—":`${m.avgDelta>=0?"▲":"▼"} ${Math.abs(m.avgDelta).toFixed(1)}% vs ${monthTitle(previousKey)}`;
+  setText($("kUnique"),deltaText,{flash:true});countTo($("kMonths"),m.activeDays);setText($("kMonthsSub"),`${fmt(m.activeDays)} of ${fmt(cutoff)} days`,{flash:true});
+  setText($("kTop"),top[0],{flash:true});setText($("kTopSub"),fmt(top[1])+" installations",{flash:true});
+  setText($("kPeak"),m.peakDay.day?`${String(m.peakDay.day).padStart(2,"0")} ${monthNames[Number(key.split("-")[1])-1]}`:"—",{flash:true});setText($("kPeakSub"),fmt(m.peakDay.count)+" installations",{flash:true});
+  if(m.activeDays)countTo($("kTop3"),m.avgDay,{decimals:1,duration:live.rendering?(live.renderAnimation??350):900});else{cancelAnimationFrame($("kTop3")._raf);$("kTop3")._raf=0;$("kTop3")._v=0;setText($("kTop3"),"—")}
+  setText($("kTop3Sub"),m.avgDelta===null?"—":`${m.avgDelta>=0?"▲":"▼"} ${Math.abs(m.avgDelta).toFixed(1)}% vs ${monthTitle(previousKey)}`,{flash:true});
   updateKpiVisuals({...c,monthMode:true,monthData:m},top,total);
-  $("dataRows").textContent=fmt(m.total);$("dataUnique").textContent=fmt(c.unique);updateFreshness();
-  $("partialNote1").hidden=!partial;$("partialNote1").textContent=partial&&dataEnd?`* Month to date: data through ${dataEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short",timeZone:"UTC"})}`:"";
+  setText($("dataRows"),fmt(m.total));setText($("dataUnique"),fmt(c.unique));updateFreshness();
+  $("partialNote1").hidden=!partial;setText($("partialNote1"),partial&&dataEnd?`* Month to date: data through ${dataEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short",timeZone:"UTC"})}`:"");
 
-  const labels=m.days.map(item=>String(item.day)),weekdayForDay=day=>new Date(Date.UTC(Number(key.slice(0,4)),Number(key.slice(5,7))-1,day)).toLocaleDateString("en-US",{weekday:"short",timeZone:"UTC"});
-  destroy("monthly");charts.monthly=new Chart($("monthlyChart"),{type:"bar",data:{labels,datasets:[
+  const labels=m.days.map(item=>String(item.day)),weekdayForDay=day=>new Date(Date.UTC(Number(key.slice(0,4)),Number(key.slice(5,7))-1,day)).toLocaleDateString("en-US",{weekday:"short",timeZone:"UTC"}),tooltipTitle=day=>`${String(day).padStart(2,"0")} ${monthNames[Number(key.slice(5,7))-1]} · ${weekdayForDay(day)}`;
+  charts.monthly=ensureChart("monthly",$("monthlyChart"),{type:"bar",data:{labels,datasets:[
     {label:"Installations",data:m.dailySeries,backgroundColor:context=>context.dataIndex!=null&&m.days[context.dataIndex]?.day===m.peakDay.day?cssVar("--green"):cssVar("--blue"),borderRadius:{topLeft:4,topRight:4},borderSkipped:false,order:2},
     ...(m.ma7.length?[{type:"line",label:"7-day average",data:m.ma7,borderColor:cssVar("--orange"),backgroundColor:"transparent",borderWidth:2,pointRadius:0,tension:.3,spanGaps:false,order:1}]:[]),
     ...(previousKey&&previousRows.length?[{type:"line",label:`${monthTitle(previousKey)} pace`,data:m.days.map(item=>(m.prevCum[item.day-1]||0)-(m.prevCum[item.day-2]||0)),borderColor:alphaColor(cssVar("--muted"),.55),backgroundColor:"transparent",borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:.15,order:0}]:[])
-  ]},plugins:[{id:"monthPeakBadge",afterDatasetsDraw(chart){const index=m.days.findIndex(item=>item.day===m.peakDay.day),bar=chart.getDatasetMeta(0).data[index];if(!bar||!m.peakDay.day)return;const ctx=chart.ctx,text=`PEAK · ${String(m.peakDay.day).padStart(2,"0")} ${monthNames[Number(key.slice(5,7))-1]}`;ctx.save();ctx.font=`800 ${Math.max(9,fsz()-3)}px "DM Sans"`;const width=ctx.measureText(text).width+12,x=Math.max(chart.chartArea.left,Math.min(chart.chartArea.right-width,bar.x-width/2)),y=Math.max(chart.chartArea.top+2,bar.y-22);ctx.fillStyle=cssVar("--green");ctx.beginPath();ctx.roundRect(x,y,width,16,8);ctx.fill();ctx.fillStyle=cssVar("--surface");ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(text,x+width/2,y+8);ctx.restore()}}],options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:true,labels:{color:cssVar("--text2"),font:{size:fsz()-1},boxWidth:10,boxHeight:8}},tooltip:{...tipStyle(),callbacks:{label:context=>{const value=Number(context.raw)||0,share=context.datasetIndex===0&&m.total?(value/m.total*100).toFixed(1)+"% of month":"",weekday=context.datasetIndex===0&&labels[context.dataIndex]?weekdayForDay(Number(labels[context.dataIndex])):"";return`${context.dataset.label}: ${context.datasetIndex===0?fmt(value)+" · "+share+" · "+weekday:fmt(value)}`}}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz()-1}}},y:{beginAtZero:true,border:{display:false},grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:value=>fmt(value)}}}}});
+  ]},plugins:[{id:"monthPeakBadge",afterDatasetsDraw(chart){const index=m.days.findIndex(item=>item.day===m.peakDay.day),bar=chart.getDatasetMeta(0).data[index];if(!bar||!m.peakDay.day)return;const ctx=chart.ctx,text=`PEAK · ${String(m.peakDay.day).padStart(2,"0")} ${monthNames[Number(key.slice(5,7))-1]}`;ctx.save();ctx.font=`800 ${Math.max(9,fsz()-3)}px "DM Sans"`;const width=ctx.measureText(text).width+12,x=Math.max(chart.chartArea.left,Math.min(chart.chartArea.right-width,bar.x-width/2)),y=Math.max(chart.chartArea.top+2,bar.y-22);ctx.fillStyle=cssVar("--green");ctx.beginPath();ctx.roundRect(x,y,width,16,8);ctx.fill();ctx.fillStyle=cssVar("--surface");ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(text,x+width/2,y+8);ctx.restore()}}],options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:true,labels:{color:cssVar("--text2"),font:{size:fsz()-1},boxWidth:10,boxHeight:8}},tooltip:{...tipStyle(),callbacks:{title:items=>items.length&&labels[items[0].dataIndex]?tooltipTitle(Number(labels[items[0].dataIndex])):"",label:context=>{const value=Number(context.raw)||0,share=context.datasetIndex===0&&m.total?(value/m.total*100).toFixed(1)+"% of month":"";return`${context.dataset.label}: ${context.datasetIndex===0?fmt(value)+" · "+share:fmt(value)}`}}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz()-1},callback:(value,index)=>labels.length>15&&index%2? "":labels[index]}},y:{beginAtZero:true,border:{display:false},grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:value=>fmt(value)}}}}});
 
-  const weekColors=palette.slice(0,4);destroy("contribution");charts.contribution=new Chart($("contributionChart"),{type:"doughnut",data:{labels:m.weeks.map(week=>week.label),datasets:[{data:m.weeks.map(week=>week.count),backgroundColor:weekColors,borderColor:cssVar("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("monthLegend"),plugins:{legend:{display:false},centerText:{value:fmt(m.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:context=>`${context.label}: ${fmt(context.raw)} · ${((context.raw/total)*100).toFixed(1)}% of total installations`}}}}});
-  $("monthLegend").innerHTML=m.total?m.weeks.map((week,index)=>`<div class="legend-row" data-index="${index}"><span class="dot" style="background:${weekColors[index]}" aria-hidden="true"></span><span>${week.label}</span><b>${fmt(week.count)}</b><em>(${((week.count/total)*100).toFixed(1)}%)</em></div>`).join(""):'<div class="note">No installations for the selected filters.</div>';bindDonutLegend("monthLegend","contribution");
+  const weekColors=palette.slice(0,4),singleWeek=m.weeks.filter(week=>week.count>0).length===1;charts.contribution=ensureChart("contribution",$("contributionChart"),{type:"doughnut",data:{labels:m.weeks.map(week=>week.label),datasets:[{data:m.weeks.map(week=>week.count),backgroundColor:weekColors,borderColor:cssVar("--surface"),borderWidth:0,borderRadius:singleWeek?0:6,spacing:singleWeek?0:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("monthLegend"),plugins:{legend:{display:false},centerText:{value:fmt(m.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:context=>`${context.label}: ${fmt(context.raw)} · ${((context.raw/total)*100).toFixed(1)}% of total installations`}}}}});
+  if(m.total)setKeyedChildren($("monthLegend"),m.weeks,week=>week.label,(week,index)=>`<div class="legend-row" data-index="${index}"><span class="dot" style="background:${weekColors[index]}" aria-hidden="true"></span><span>${week.label}</span><b>${fmt(week.count)}</b><em>(${((week.count/total)*100).toFixed(1)}%)</em></div>`);
+  else setHTML($("monthLegend"),'<div class="note">No installations for the selected filters.</div>');
+  bindDonutLegend("monthLegend","contribution");
 
   const topInstallers=m.installers.slice(0,10),subsetNote=`Showing top 10 of ${m.installers.length} installers`;
-  $("topBody").innerHTML=topInstallers.map(([name,count],index)=>`<tr><td>${index<3?`<span class="rank-medal ${["gold","silver","bronze"][index]}">${index+1}</span>`:index+1}</td><td><div class="person-name">${avatar(name)}<b>${esc(name)}</b><small class="rank-change">${m.rankChanges[name]?.label||"NEW"}</small></div><div class="mini-bar"><i class="${index===0?"leader":""}" style="width:${((count/(top[1]||1))*100)}%"></i></div></td><td>${fmt(count)}</td><td>${((count/total)*100).toFixed(1)}%</td></tr>`).join("");
-  $("topNote").textContent=subsetNote;$("topNote").hidden=m.installers.length<=10;
+  setKeyedRows($("topBody"),topInstallers,([name])=>name,([name,count],index)=>`<td>${index<3?`<span class="rank-medal ${["gold","silver","bronze"][index]}">${index+1}</span>`:index+1}</td><td><div class="person-name">${avatar(name,index+1,topInstallers.length)}<b>${esc(name)}</b><small class="rank-change">${m.rankChanges[name]?.label||"NEW"}</small></div><div class="mini-bar"><i class="${index===0?"leader":""}" style="width:${((count/(top[1]||1))*100)}%"></i></div></td><td>${fmt(count)}</td><td>${((count/total)*100).toFixed(1)}%</td>`,{fixedRows:10,colspan:4,classFor:([name],index)=>rankMotion(name,index)});
+  setText($("topNote"),subsetNote);$("topNote").hidden=m.installers.length<=10;
 
-  const summaryTable=document.querySelector(".summary-table");summaryTable.tHead.innerHTML="<tr><th>Week</th><th>Installations</th><th>% of Month</th><th>Avg/Day</th></tr>";
-  $("summaryBody").innerHTML=(m.total?m.weeks.map(week=>`<tr><td>${week.label}</td><td>${fmt(week.count)}</td><td>${((week.count/total)*100).toFixed(1)}%</td><td>${week.days?(week.count/week.days).toFixed(1):"—"}</td></tr>`).join(""):`<tr><td colspan="4">No installations for the selected filters.</td></tr>`)+`<tr class="total-row"><td>Total</td><td>${fmt(m.total)}</td><td>${m.total?"100%":"—"}</td><td>${m.days.length?m.avgDay.toFixed(1):"—"}</td></tr>`;
+  const summaryTable=document.querySelector(".summary-table");setHTML(summaryTable.tHead,"<tr><th>Week</th><th>Installations</th><th>% of Month</th><th>Avg/Day</th></tr>");
+  const summaryWeeks=m.total?m.weeks:[{label:"empty",count:0,days:0}],summaryRows=summaryWeeks.map(week=>week.label==="empty"?{key:"empty",html:'<td colspan="4">No installations for the selected filters.</td>'}:{key:week.label,html:`<td>${week.label}</td><td>${fmt(week.count)}</td><td>${((week.count/total)*100).toFixed(1)}%</td><td>${week.days?(week.count/week.days).toFixed(1):"—"}</td>`});
+  summaryRows.push({key:"total",html:`<td>Total</td><td>${fmt(m.total)}</td><td>${m.total?"100%":"—"}</td><td>${m.days.length?m.avgDay.toFixed(1):"—"}</td>`,className:"total-row"});
+  setKeyedRows($("summaryBody"),summaryRows,item=>item.key,item=>item.html,{colspan:4,classFor:item=>item.className||""});
+  $("summaryBody").querySelectorAll("tr.total-row").forEach(row=>row.classList.add("total-row"));
 
   const heatInstallers=m.installers.slice(0,10),heatMax=Math.max(1,...heatInstallers.flatMap(([name])=>m.weeks.map((_,index)=>m.weeklyInstallers[name]?.[index]||0)));
-  $("heatHead").innerHTML=`<tr><th>Name</th>${m.weeks.map(week=>`<th>${week.label}</th>`).join("")}<th>Total</th></tr>`;
-  $("heatBody").innerHTML=heatInstallers.length?heatInstallers.map(([name,count])=>`<tr><td class="name" title="${esc(name)}"><div class="person-name">${avatar(name)}<span>${esc(name)}</span></div></td>${m.weeks.map((week,index)=>{const value=m.weeklyInstallers[name]?.[index]||0;return`<td class="${heatClass(value,heatMax)}" title="${esc(name)} · ${week.label}: ${fmt(value)}">${fmt(value)}</td>`}).join("")}<td class="total">${fmt(count)}</td></tr>`).join(""):`<tr><td colspan="6">No installations for the selected filters.</td></tr>`;setupHeatmapCrosshair();
+  setHTML($("heatHead"),`<tr><th>Name</th>${m.weeks.map(week=>`<th>${week.label}</th>`).join("")}<th>Total</th></tr>`);
+  setKeyedRows($("heatBody"),heatInstallers,([name])=>name,([name,count],index)=>`<td class="name" title="${esc(name)}"><div class="person-name">${avatar(name,index+1,heatInstallers.length)}<span>${esc(name)}</span></div></td>${m.weeks.map((week,index)=>{const value=m.weeklyInstallers[name]?.[index]||0;return`<td class="${heatClass(value,heatMax)}" title="${esc(name)} · ${week.label}: ${fmt(value)}">${fmt(value)}</td>`}).join("")}<td class="total">${fmt(count)}</td>`,{colspan:6,classFor:([name],index)=>rankMotion(name,index)});setupHeatmapCrosshair();finishRankRender(m.installers);
   document.querySelector(".heat-wrap").scrollLeft=0;
 
-  $("distributionChart").hidden=true;$("hourChart").hidden=false;destroy("distribution");destroy("hour");
-  const hourLabels=Object.keys(m.hours).map(Number),hourChartLabels=hourLabels.map(hour=>`${String(hour).padStart(2,"0")}:00`),hourValues=hourLabels.map(hour=>m.hours[hour]);if(m.otherHours){hourChartLabels.push("Other");hourValues.push(m.otherHours)}charts.hour=new Chart($("hourChart"),{type:"bar",data:{labels:hourChartLabels,datasets:[{label:"Installations",data:hourValues,backgroundColor:hourLabels.map(hour=>hour===m.busyHour.hour?cssVar("--green"):cssVar("--blue")).concat(m.otherHours?[cssVar("--muted")]:[]),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:context=>`${fmt(context.raw)} installations`}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz()-1},maxRotation:0}},y:{beginAtZero:true,border:{display:false},grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:value=>fmt(value)}}}}});
+  setHourCanvas(true);
+  const hourLabels=Object.keys(m.hours).map(Number),hourChartLabels=hourLabels.map(hour=>`${String(hour).padStart(2,"0")}:00`),hourValues=hourLabels.map(hour=>m.hours[hour]);if(m.otherHours){hourChartLabels.push("Other");hourValues.push(m.otherHours)}charts.hour=ensureChart("hour",$("hourChart"),{type:"bar",data:{labels:hourChartLabels,datasets:[{label:"Installations",data:hourValues,backgroundColor:hourLabels.map(hour=>hour===m.busyHour.hour?cssVar("--green"):cssVar("--blue")).concat(m.otherHours?[cssVar("--muted")]:[]),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:context=>`${fmt(context.raw)} installations`}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz()-1},maxRotation:0}},y:{beginAtZero:true,border:{display:false},grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:value=>fmt(value)}}}}});
   const peakWindow=m.busyHour.hour===null?"—":`${String(m.busyHour.hour).padStart(2,"0")}:00–${String(m.busyHour.hour+1).padStart(2,"0")}:00`;
-  $("distLegend").innerHTML=m.total?`<div class="legend-row"><span class="dot" style="background:${cssVar("--green")}" aria-hidden="true"></span><span>Peak window</span><b>${esc(peakWindow)}</b><em>${fmt(m.busyHour.count)}</em></div>${m.dateOnly?`<div class="legend-row"><span class="dot" style="background:${cssVar("--muted")}" aria-hidden="true"></span><span>Date only</span><b>${fmt(m.dateOnly)}</b><em>excluded</em></div>`:""}${m.otherHours?`<div class="note">${fmt(m.otherHours)} timed rows outside 09:00–19:59 (Other bar)</div>`:""}`:'<div class="note">No installations for the selected filters.</div>';
+  const hourLegend=m.total?[{key:"peak",html:`<div class="legend-row"><span class="dot" style="background:${cssVar("--green")}" aria-hidden="true"></span><span>Peak window</span><b>${esc(peakWindow)}</b><em>${fmt(m.busyHour.count)}</em></div>`},...(m.dateOnly?[{key:"dateOnly",html:`<div class="legend-row"><span class="dot" style="background:${cssVar("--muted")}" aria-hidden="true"></span><span>Date only</span><b>${fmt(m.dateOnly)}</b><em>excluded</em></div>`}]:[]),...(m.otherHours?[{key:"other",html:`<div class="note">${fmt(m.otherHours)} timed rows outside 09:00–19:59 (Other bar)</div>`}]:[])]:[];
+  if(hourLegend.length)setKeyedChildren($("distLegend"),hourLegend,item=>item.key,item=>item.html);
+  else setHTML($("distLegend"),'<div class="note">No installations for the selected filters.</div>');
 
   const bestDay=m.peakDay.day?`${monthName.split(" ")[0]} ${m.peakDay.day} (${fmt(m.peakDay.count)} installations)`:"—",busyDay=m.weekdays[m.busyWeekday]?`${m.busyWeekday} (${fmt(m.weekdays[m.busyWeekday])})`:"—",pace=m.delta===null?"—":`${m.delta>=0?"+":""}${m.delta.toFixed(1)}% through day ${cutoff}`;
-  $("insights").innerHTML=m.total?`<li>Best day: <b>${esc(bestDay)}</b>.</li><li>Busiest weekday: <b>${esc(busyDay)}</b>.</li><li>Best week: <b>${m.bestWeek.label}</b> with <b>${fmt(m.bestWeek.count)}</b> installations.</li><li><b>${fmt(m.activeInstallers)}</b> active installers recorded installations.</li><li>Average per installer per active day: <b>${m.activeInstallers&&m.activeDays?m.avgInstallerDay.toFixed(2):"—"}</b>.</li><li>Peak hour window: <b>${esc(peakWindow)}</b> (${fmt(m.busyHour.count)} installations).</li><li>Pace vs ${previousKey?esc(monthTitle(previousKey)):"previous month"}: <b>${esc(pace)}</b>.</li>`:"<li>No installations for the selected filters in this month.</li>";decorateInsights();
+  setHTML($("insights"),m.total?`<li>Best day: <b>${esc(bestDay)}</b>.</li><li>Busiest weekday: <b>${esc(busyDay)}</b>.</li><li>Best week: <b>${m.bestWeek.label}</b> with <b>${fmt(m.bestWeek.count)}</b> installations.</li><li><b>${fmt(m.activeInstallers)}</b> active installers recorded installations.</li><li>Average per installer per active day: <b>${m.activeInstallers&&m.activeDays?m.avgInstallerDay.toFixed(2):"—"}</b>.</li><li>Peak hour window: <b>${esc(peakWindow)}</b> (${fmt(m.busyHour.count)} installations).</li><li>Pace vs ${previousKey?esc(monthTitle(previousKey)):"previous month"}: <b>${esc(pace)}</b>.</li>`:"<li>No installations for the selected filters in this month.</li>");decorateInsights();
 
   $("mom").hidden=true;$("paceBox").hidden=false;$("paceCaption").hidden=false;$("partialNote2").hidden=true;
-  destroy("pace");const paceLabels=Array.from({length:cutoff},(_,index)=>String(index+1)),hasPrevious=!!previousKey&&previousRows.length>0&&m.total>0;
-  charts.pace=new Chart($("paceChart"),{type:"line",data:{labels:paceLabels,datasets:[{label:monthName,data:m.total?m.cum:[],borderColor:cssVar("--blue"),backgroundColor:alphaColor(cssVar("--blue"),.18),fill:"origin",borderWidth:2,pointRadius:0,tension:.2},...(hasPrevious?[{label:monthTitle(previousKey),data:m.prevCum,borderColor:alphaColor(cssVar("--muted"),.55),backgroundColor:"transparent",fill:false,borderDash:[5,4],borderWidth:1.5,pointRadius:0,tension:.2}]:[])]},options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:true,labels:{color:cssVar("--text2"),font:{size:fsz()-1},boxWidth:10}},tooltip:{...tipStyle(),callbacks:{label:context=>`${context.dataset.label}: ${fmt(context.raw)}`}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz()-1},maxTicksLimit:10}},y:{beginAtZero:true,border:{display:false},grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:value=>fmt(value)}}}}});
-  $("paceCaption").textContent=!m.total?"No installations for the selected filters.":hasPrevious?`Day ${cutoff}: ${m.cum.at(-1)-m.prevCum.at(-1)>=0?"+":""}${fmt(m.cum.at(-1)-m.prevCum.at(-1))} vs ${monthTitle(previousKey)}`:`Day ${cutoff}: — vs previous month`;
+  const paceLabels=Array.from({length:cutoff},(_,index)=>String(index+1)),hasPrevious=!!previousKey&&previousRows.length>0&&m.total>0;
+  charts.pace=ensureChart("pace",$("paceChart"),{type:"line",data:{labels:paceLabels,datasets:[{label:monthName,data:m.total?m.cum:[],borderColor:cssVar("--blue"),backgroundColor:alphaColor(cssVar("--blue"),.18),fill:"origin",borderWidth:2,pointRadius:0,tension:.2},...(hasPrevious?[{label:monthTitle(previousKey),data:m.prevCum,borderColor:alphaColor(cssVar("--muted"),.55),backgroundColor:"transparent",fill:false,borderDash:[5,4],borderWidth:1.5,pointRadius:0,tension:.2}]:[])]},options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:true,labels:{color:cssVar("--text2"),font:{size:fsz()-1},boxWidth:10}},tooltip:{...tipStyle(),callbacks:{label:context=>`${context.dataset.label}: ${fmt(context.raw)}`}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz()-1},maxTicksLimit:10}},y:{beginAtZero:true,border:{display:false},grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:value=>fmt(value)}}}}});
+  setText($("paceCaption"),!m.total?"No installations for the selected filters.":hasPrevious?`Day ${cutoff}: ${m.cum.at(-1)-m.prevCum.at(-1)>=0?"+":""}${fmt(m.cum.at(-1)-m.prevCum.at(-1))} vs ${monthTitle(previousKey)}`:`Day ${cutoff}: — vs previous month`);
   $("partialNote2").hidden=true;
 
-  destroy("sub");charts.sub=new Chart($("subChart"),{type:"doughnut",data:{labels:c.subs.map(item=>item[0]),datasets:[{data:c.subs.map(item=>item[1]),backgroundColor:c.subs.map((_,index)=>subColors[index%subColors.length]),borderColor:cssVar("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("subLegend"),plugins:{legend:{display:false},centerText:{value:fmt(c.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:context=>`${context.label}: ${fmt(context.raw)} · ${((context.raw/total)*100).toFixed(1)}% of total installations`}}}}});
-  $("subLegend").innerHTML=c.subs.length?c.subs.map(([name,value],index)=>`<div class="legend-row${index===0?" is-lead":""}" data-index="${index}"><span class="dot" style="background:${subColors[index%subColors.length]}" aria-hidden="true"></span><span>${esc(name)}</span><b>${fmt(value)}</b><em>(${((value/total)*100).toFixed(1)}%)</em></div>`).join(""):'<div class="note">No installations for the selected filters.</div>';bindDonutLegend("subLegend","sub");
+  charts.sub=ensureChart("sub",$("subChart"),{type:"doughnut",data:{labels:c.subs.map(item=>item[0]),datasets:[{data:c.subs.map(item=>item[1]),backgroundColor:c.subs.map((_,index)=>subColors[index%subColors.length]),borderColor:cssVar("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("subLegend"),plugins:{legend:{display:false},centerText:{value:fmt(c.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:context=>`${context.label}: ${fmt(context.raw)} · ${((context.raw/total)*100).toFixed(1)}% of total installations`}}}}});
+  setHTML($("subLegend"),c.subs.length?c.subs.map(([name,value],index)=>`<div class="legend-row${index===0?" is-lead":""}" data-index="${index}"><span class="dot" style="background:${subColors[index%subColors.length]}" aria-hidden="true"></span><span>${esc(name)}</span><b>${fmt(value)}</b><em>(${((value/total)*100).toFixed(1)}%)</em></div>`).join(""):'<div class="note">No installations for the selected filters.</div>');bindDonutLegend("subLegend","sub");
   markLiveStep();
 }
-function renderDashboard(rows){
+function renderDashboardNow(rows){
   if(isMonth()){renderMonthDashboard();return}
-  $("ttlTrend").textContent="Monthly Installation Trend";$("ttlContrib").textContent="Monthly Contribution";$("ttlSummary").textContent="Monthly Installation Summary";$("ttlDist").textContent="Installation Distribution";$("ttlMom").textContent="Month-on-Month Change";
-  $("kMonthsL").textContent="Active Months";$("kPeakL").textContent="Peak Month";$("kTop3L").textContent="Top 3 Contribution";
-  $("summaryBody").closest("table").tHead.innerHTML="<tr><th>Month</th><th>Installations</th><th>% of Total</th></tr>";
-  $("distributionChart").hidden=false;$("hourChart").hidden=true;$("mom").hidden=false;$("paceBox").hidden=true;$("paceCaption").hidden=true;destroy("hour");destroy("pace");
+  setText($("ttlTrend"),"Monthly Installation Trend");setText($("ttlContrib"),"Monthly Contribution");setText($("ttlSummary"),"Monthly Installation Summary");setText($("ttlDist"),"Installation Distribution");setText($("ttlMom"),"Month-on-Month Change");
+  setText($("kMonthsL"),"Active Months");setText($("kPeakL"),"Peak Month");setText($("kTop3L"),"Top 3 Contribution");
+  setHTML($("summaryBody").closest("table").tHead,"<tr><th>Month</th><th>Installations</th><th>% of Total</th></tr>");
+  setHourCanvas(false);$("mom").hidden=false;$("paceBox").hidden=true;$("paceCaption").hidden=true;
   lastRenderedRoot=Math.round(rootPx());
   const c=calc(rows);const total=Math.max(1,c.total);
-  countTo($("kTotal"),c.total);$("kUnique").textContent=fmt(c.unique)+" unique installations";countTo($("kMonths"),c.months.length);$("kMonthsSub").textContent=c.months.length?(monthLabel(c.months[0])+" – "+monthLabel(c.months[c.months.length-1])):"—";
-  const top=c.installers[0]||["—",0];$("kTop").textContent=top[0];$("kTopSub").textContent=fmt(top[1])+" installations";$("kPeak").textContent=monthLabel(c.peak[0]);$("kPeakSub").textContent=fmt(c.peak[1])+" installations";countTo($("kTop3"),(c.top3/total)*100,{decimals:1,suffix:"%"});$("kTop3Sub").textContent=fmt(c.top3)+" of "+fmt(c.total)+" installations";
+  countTo($("kTotal"),c.total);setText($("kUnique"),fmt(c.unique)+" unique installations",{flash:true});countTo($("kMonths"),c.months.length);setText($("kMonthsSub"),c.months.length?(monthLabel(c.months[0])+" – "+monthLabel(c.months[c.months.length-1])):"—",{flash:true});
+  const top=c.installers[0]||["—",0];setText($("kTop"),top[0],{flash:true});setText($("kTopSub"),fmt(top[1])+" installations",{flash:true});setText($("kPeak"),monthLabel(c.peak[0]),{flash:true});setText($("kPeakSub"),fmt(c.peak[1])+" installations",{flash:true});countTo($("kTop3"),(c.top3/total)*100,{decimals:1,suffix:"%"});setText($("kTop3Sub"),`Top 3 of ${fmt(c.installers.length)} installers · ${fmt(c.top3)} of ${fmt(c.total)} installs`,{flash:true});
   updateKpiVisuals(c,top,total);
-  $("dataRows").textContent=fmt(c.total);$("dataUnique").textContent=fmt(c.unique);
-  if(dataEnd){const latestOptions={day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",timeZone:"UTC"};$("dataLatest").textContent=dataEnd.getUTCHours()===0&&dataEnd.getUTCMinutes()===0?dataEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):dataEnd.toLocaleString("en-IN",latestOptions)}else{$("dataLatest").textContent="—"}
+  setText($("dataRows"),fmt(c.total));setText($("dataUnique"),fmt(c.unique));
+  if(dataEnd){const latestOptions={day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",timeZone:"UTC"};setText($("dataLatest"),dataEnd.getUTCHours()===0&&dataEnd.getUTCMinutes()===0?dataEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):dataEnd.toLocaleString("en-IN",latestOptions))}else setText($("dataLatest"),"—");
   updateFreshness();
 
-    destroy("monthly");charts.monthly=new Chart($("monthlyChart"),{type:"bar",data:{labels:c.months.map(monthTag),datasets:[{data:c.months.map(m=>c.mc[m]),backgroundColor:barBackground,borderColor:c.months.map(m=>m===partialKey?cssVar("--blue"):"transparent"),borderWidth:c.months.map(m=>m===partialKey?1.5:0),borderRadius:{topLeft:6,topRight:6},borderSkipped:false,maxBarThickness:Math.round(rootPx()*3.75),barPercentage:.62}]},plugins:[barValueLabels,barAnnotations],options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:x=>fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz(),weight:"600"}}},y:{beginAtZero:true,border:{display:false},grace:"8%",grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:v=>fmt(v)}}}}});
-  destroy("contribution");charts.contribution=new Chart($("contributionChart"),{type:"doughnut",data:{labels:c.months.map(monthTag),datasets:[{data:c.months.map(m=>c.mc[m]),backgroundColor:palette.slice(0,c.months.length),borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("monthLegend"),plugins:{legend:{display:false},centerText:{value:fmt(c.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:x=>x.label+": "+fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}}}});
-  $("monthLegend").innerHTML=c.months.map((m,i)=>`<div class="legend-row" data-index="${i}" data-month="${m}"><span class="dot" style="background:${palette[i]}" aria-hidden="true"></span><span>${monthTag(m)}</span><b>${fmt(c.mc[m])}</b><em>(${((c.mc[m]/total)*100).toFixed(1)}%)</em></div>`).join("");bindDonutLegend("monthLegend","contribution");
+    charts.monthly=ensureChart("monthly",$("monthlyChart"),{type:"bar",data:{labels:c.months.map(monthTag),datasets:[{data:c.months.map(m=>c.mc[m]),backgroundColor:barBackground,borderColor:c.months.map(m=>m===partialKey?cssVar("--blue"):"transparent"),borderWidth:c.months.map(m=>m===partialKey?1.5:0),borderRadius:{topLeft:6,topRight:6},borderSkipped:false,maxBarThickness:Math.round(rootPx()*3.75),barPercentage:.62}]},plugins:[barValueLabels,barAnnotations],options:{responsive:true,maintainAspectRatio:false,animation:chartAnimation(),plugins:{legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:x=>fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}},scales:{x:{grid:{display:false},ticks:{color:cssVar("--text2"),font:{size:fsz(),weight:"600"}}},y:{beginAtZero:true,border:{display:false},grace:"8%",grid:{color:cssVar("--border2")},ticks:{color:cssVar("--muted"),font:{size:fsz()-1},callback:v=>fmt(v)}}}}});
+  charts.contribution=ensureChart("contribution",$("contributionChart"),{type:"doughnut",data:{labels:c.months.map(monthTag),datasets:[{data:c.months.map(m=>c.mc[m]),backgroundColor:palette.slice(0,c.months.length),borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("monthLegend"),plugins:{legend:{display:false},centerText:{value:fmt(c.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:x=>x.label+": "+fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}}}});
+  if(c.months.length)setKeyedChildren($("monthLegend"),c.months,m=>m,(m,i)=>`<div class="legend-row" data-index="${i}" data-month="${m}"><span class="dot" style="background:${palette[i]}" aria-hidden="true"></span><span>${monthTag(m)}</span><b>${fmt(c.mc[m])}</b><em>(${((c.mc[m]/total)*100).toFixed(1)}%)</em></div>`);
+  else setHTML($("monthLegend"),'<div class="note">No installations for the selected filters.</div>');
+  bindDonutLegend("monthLegend","contribution");
   const topInstallers=c.installers.slice(0,10),topActivity=topInstallers.reduce((sum,x)=>sum+x[1],0),topShare=(topActivity/total*100).toFixed(1),subsetNote=`Showing top 10 of ${c.installers.length} installers · ${topShare}% of total installations`;
-  $("topBody").innerHTML=topInstallers.map((x,i)=>`<tr><td>${i<3?`<span class="rank-medal ${["gold","silver","bronze"][i]}">${i+1}</span>`:i+1}</td><td><div class="person-name">${avatar(x[0])}<b>${esc(x[0])}</b></div><div class="mini-bar"><i class="${i===0?"leader":""}" style="width:${((x[1]/(top[1]||1))*100)}%"></i></div></td><td>${fmt(x[1])}</td><td>${((x[1]/total)*100).toFixed(1)}%</td></tr>`).join("");
-  ["topNote","heatNote"].forEach(id=>{$(id).textContent=subsetNote;$(id).hidden=c.installers.length<=10});
+  setKeyedRows($("topBody"),topInstallers,([name])=>name,([name,count],index)=>`<td>${index<3?`<span class="rank-medal ${["gold","silver","bronze"][index]}">${index+1}</span>`:index+1}</td><td><div class="person-name">${avatar(name,index+1,topInstallers.length)}<b>${esc(name)}</b></div><div class="mini-bar"><i class="${index===0?"leader":""}" style="width:${((count/(top[1]||1))*100)}%"></i></div></td><td>${fmt(count)}</td><td>${((count/total)*100).toFixed(1)}%</td>`,{fixedRows:10,colspan:4,classFor:([name],index)=>rankMotion(name,index)});
+  ["topNote","heatNote"].forEach(id=>{setText($(id),subsetNote);$(id).hidden=c.installers.length<=10});
   const monthFilter=$("filterMonth")?.value||"All",showPartial=!!partialKey&&(monthFilter==="All"||monthFilter===partialKey),partialDate=dataEnd?dataEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short",timeZone:"UTC"}):"";
-  ["partialNote1","partialNote2"].forEach(id=>{$(id).textContent=`* Month to date: data through ${partialDate}`;$(id).hidden=!showPartial});
-  $("summaryBody").innerHTML=c.months.map(m=>`<tr><td>${monthTag(m)}</td><td>${fmt(c.mc[m])}</td><td>${((c.mc[m]/total)*100).toFixed(1)}%</td></tr>`).join("")+`<tr class="total-row"><td>Total</td><td>${fmt(c.total)}</td><td>100%</td></tr>`;
+  ["partialNote1","partialNote2"].forEach(id=>{setText($(id),`* Month to date: data through ${partialDate}`);$(id).hidden=!showPartial});
+  const summaryMonths=c.months.length?c.months:[null],summaryRows=summaryMonths.map(month=>month?{key:month,html:`<td>${monthTag(month)}</td><td>${fmt(c.mc[month])}</td><td>${((c.mc[month]/total)*100).toFixed(1)}%</td>`}:{key:"empty",html:'<td colspan="3">No installations for the selected filters.</td>'});
+  summaryRows.push({key:"total",html:`<td>Total</td><td>${fmt(c.total)}</td><td>${c.total?"100%":"—"}</td>`,className:"total-row"});
+  setKeyedRows($("summaryBody"),summaryRows,item=>item.key,item=>item.html,{colspan:3,classFor:item=>item.className||""});
+  $("summaryBody").querySelectorAll("tr.total-row").forEach(row=>row.classList.add("total-row"));
 
   const heatTop=c.installers.slice(0,10),maxCell=Math.max(1,...heatTop.flatMap(([name])=>c.months.map(m=>rows.filter(r=>r.inst===name&&r.dt&&monthKey(r.dt)===m).length)));
-  $("heatHead").innerHTML=`<tr><th>Name</th>${c.months.map(m=>`<th>${monthTag(m)}</th>`).join("")}<th>Total</th></tr>`;
-  $("heatBody").innerHTML=heatTop.map(([name,t])=>`<tr><td class="name" title="${esc(name)}"><div class="person-name">${avatar(name)}<span>${esc(name)}</span></div></td>${c.months.map(m=>{const v=rows.filter(r=>r.inst===name&&r.dt&&monthKey(r.dt)===m).length,pct=t?` (${(v/t*100).toFixed(1)}% of ${esc(name)}'s total)`:"";return `<td title="${esc(name)} · ${esc(monthTag(m))}: ${fmt(v)}${pct}" class="${heatClass(v,maxCell)}">${fmt(v)}</td>`}).join("")}<td class="total" title="${esc(name)} · Total: ${fmt(t)}">${fmt(t)}</td></tr>`).join("");setupHeatmapCrosshair();
+  setHTML($("heatHead"),`<tr><th>Name</th>${c.months.map(m=>`<th>${monthTag(m)}</th>`).join("")}<th>Total</th></tr>`);
+  setKeyedRows($("heatBody"),heatTop,([name])=>name,([name,count],index)=>`<td class="name" title="${esc(name)}"><div class="person-name">${avatar(name,index+1,heatTop.length)}<span>${esc(name)}</span></div></td>${c.months.map(m=>{const v=rows.filter(r=>r.inst===name&&r.dt&&monthKey(r.dt)===m).length,pct=count?` (${(v/count*100).toFixed(1)}% of ${esc(name)}'s total)`:"";return `<td title="${esc(name)} · ${esc(monthTag(m))}: ${fmt(v)}${pct}" class="${heatClass(v,maxCell)}">${fmt(v)}</td>`}).join("")}<td class="total" title="${esc(name)} · Total: ${fmt(count)}</td>`,{colspan:c.months.length+2,classFor:([name],index)=>rankMotion(name,index)});setupHeatmapCrosshair();finishRankRender(c.installers);
 
   const bins=[["High Performers (> 500)",0],["Medium Performers (101 – 500)",0],["Low Performers (≤ 100)",0]];c.installers.forEach(x=>bins[x[1]>500?0:x[1]>100?1:2][1]+=x[1]);
   const sumB=bins.reduce((s,x)=>s+x[1],0)||1;const dcol=["#1267bd","#f28d12","#21a56e"];
-  destroy("distribution");charts.distribution=new Chart($("distributionChart"),{type:"doughnut",data:{labels:bins.map(x=>x[0]),datasets:[{data:bins.map(x=>x[1]),backgroundColor:dcol,borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("distLegend"),plugins:{centerText:{value:fmt(bins.reduce((s,x)=>s+x[1],0)),label:"Total Installations"},sliceLabels:true,legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:x=>x.label+": "+fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}}}});
-  $("distLegend").innerHTML=bins.map((x,i)=>{const m=x[0].match(/^(.*?)\s*\((.*)\)$/);const nm=m?m[1]:x[0],rg=m?m[2]:"";return `<div class="legend-row dist-row" data-index="${i}"><span class="dot" style="background:${dcol[i]}"></span><span class="dist-name"><b>${esc(nm)}</b><small>${esc(rg)}</small></span><b>${fmt(x[1])}</b><em>(${((x[1]/sumB)*100).toFixed(1)}%)</em></div>`}).join("");bindDonutLegend("distLegend","distribution");
-  destroy("sub");charts.sub=new Chart($("subChart"),{type:"doughnut",data:{labels:c.subs.map(x=>x[0]),datasets:[{data:c.subs.map(x=>x[1]),backgroundColor:c.subs.map((_,i)=>subColors[i%subColors.length]),borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("subLegend"),plugins:{legend:{display:false},centerText:{value:fmt(c.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:x=>x.label+": "+fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}}}});
-  $("subLegend").innerHTML=c.subs.map(([name,v],i)=>`<div class="legend-row${i===0?" is-lead":""}" data-index="${i}"><span class="dot" style="background:${subColors[i%subColors.length]}" aria-hidden="true"></span><span>${esc(name)}</span><b>${fmt(v)}</b><em>(${((v/total)*100).toFixed(1)}%)</em></div>`).join("");bindDonutLegend("subLegend","sub");
+  charts.distribution=ensureChart("distribution",$("distributionChart"),{type:"doughnut",data:{labels:bins.map(x=>x[0]),datasets:[{data:bins.map(x=>x[1]),backgroundColor:dcol,borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("distLegend"),plugins:{centerText:{value:fmt(bins.reduce((s,x)=>s+x[1],0)),label:"Total Installations"},sliceLabels:true,legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:x=>x.label+": "+fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}}}});
+  setKeyedChildren($("distLegend"),bins,x=>x[0],(x,i)=>{const m=x[0].match(/^(.*?)\s*\((.*)\)$/),nm=m?m[1]:x[0],rg=m?m[2]:"";return `<div class="legend-row dist-row" data-index="${i}"><span class="dot" style="background:${dcol[i]}"></span><span class="dist-name"><b>${esc(nm)}</b><small>${esc(rg)}</small></span><b>${fmt(x[1])}</b><em>(${((x[1]/sumB)*100).toFixed(1)}%)</em></div>`});bindDonutLegend("distLegend","distribution");
+  charts.sub=ensureChart("sub",$("subChart"),{type:"doughnut",data:{labels:c.subs.map(x=>x[0]),datasets:[{data:c.subs.map(x=>x[1]),backgroundColor:c.subs.map((_,i)=>subColors[i%subColors.length]),borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},plugins:[centerText,sliceLabels],options:{cutout:"62%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),onHover:donutHover("subLegend"),plugins:{legend:{display:false},centerText:{value:fmt(c.total),label:"Total Installations"},sliceLabels:true,tooltip:{...tipStyle(),callbacks:{label:x=>x.label+": "+fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}}}});
+  if(c.subs.length)setKeyedChildren($("subLegend"),c.subs,([name])=>name,([name,v],i)=>`<div class="legend-row${i===0?" is-lead":""}" data-index="${i}"><span class="dot" style="background:${subColors[i%subColors.length]}" aria-hidden="true"></span><span>${esc(name)}</span><b>${fmt(v)}</b><em>(${((v/total)*100).toFixed(1)}%)</em></div>`);
+  else setHTML($("subLegend"),'<div class="note">No installations for the selected filters.</div>');
+  bindDonutLegend("subLegend","sub");
   const topSub=c.subs[0]||["—",0],pd=c.peakDay[0]==="—"?"—":new Date(c.peakDay[0]+"T00:00:00Z").toLocaleDateString("en-IN",{day:"2-digit",month:"short",timeZone:"UTC"});
-  $("insights").innerHTML=`<li>Total installation activity is <b>${fmt(c.total)}</b> across <b>${c.months.length}</b> active months.</li><li><b>${esc(monthLabel(c.peak[0]))}</b> is the peak month with <b>${fmt(c.peak[1])}</b> installations.</li><li><b>${esc(top[0])}</b> is the highest-volume performer with <b>${fmt(top[1])}</b> installations.</li><li>The top three contributors generated <b>${((c.top3/total)*100).toFixed(1)}%</b> of total installations.</li><li><b>${esc(topSub[0])}</b> has the highest sub-division installation count with <b>${fmt(topSub[1])}</b>.</li><li>Peak daily installations were <b>${fmt(c.peakDay[1])}</b> on <b>${pd}</b>.</li>${partialKey?`<li><b>${monthLabel(partialKey)}</b> is month-to-date (data through <b>${partialDate}</b>), so it is not compared with full months.</li>`:""}`;
+  setHTML($("insights"),`<li>Total installation activity is <b>${fmt(c.total)}</b> across <b>${c.months.length}</b> active months.</li><li><b>${esc(monthLabel(c.peak[0]))}</b> is the peak month with <b>${fmt(c.peak[1])}</b> installations.</li><li><b>${esc(top[0])}</b> is the highest-volume performer with <b>${fmt(top[1])}</b> installations.</li><li>The top three contributors generated <b>${((c.top3/total)*100).toFixed(1)}%</b> of total installations.</li><li><b>${esc(topSub[0])}</b> has the highest sub-division installation count with <b>${fmt(topSub[1])}</b>.</li><li>Peak daily installations were <b>${fmt(c.peakDay[1])}</b> on <b>${pd}</b>.</li>${partialKey?`<li><b>${monthLabel(partialKey)}</b> is month-to-date (data through <b>${partialDate}</b>), so it is not compared with full months.</li>`:""}`);
   $("mom").style.setProperty("--n",c.months.length);$("mom").classList.toggle("mom--wrap",c.months.length>8);
   decorateInsights();
-  $("mom").innerHTML=c.months.map((m,i)=>{const cur=c.mc[m],prev=i?c.mc[c.months[i-1]]:0,pct=i&&prev?((cur-prev)/prev*100):null,isPartial=m===partialKey;return `<div class="mom-card" data-month="${m}"><small>${monthTag(m)}</small><b>${fmt(cur)}</b>${isPartial?'<span class="mtd">MTD</span>':`<span class="${pct===null?"":pct>=0?"up":"down"}">${pct===null?"—":(pct>=0?"▲ ":"▼ ")+Math.abs(pct).toFixed(1)+"%"}</span>`}</div>`}).join("");
+  setKeyedChildren($("mom"),c.months,m=>m,(m,i)=>{const cur=c.mc[m],prev=i?c.mc[c.months[i-1]]:0,pct=i&&prev?((cur-prev)/prev*100):null,isPartial=m===partialKey;return `<div class="mom-card" data-month="${m}"><small>${monthTag(m)}</small><b>${fmt(cur)}</b>${isPartial?'<span class="mtd">MTD</span>':`<span class="${pct===null?"":pct>=0?"up":"down"}">${pct===null?"—":(pct>=0?"▲ ":"▼ ")+Math.abs(pct).toFixed(1)+"%"}</span>`}</div>`});
   markLiveStep();
 }
-function scheduleChartResize(){clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{if(Math.round(rootPx())!==lastRenderedRoot&&allRows.length>0)renderDashboard(getFilteredRows())},150)}
+function scheduleChartResize(){clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{if(Math.round(rootPx())!==lastRenderedRoot&&allRows.length>0){if(live.transitioning)finishLiveTransition(live.transitionToken);chartRenderAnimation=0;live.renderAnimation=0;renderDashboard(getFilteredRows())}},150)}
 window.addEventListener("resize",scheduleChartResize);
 if(window.visualViewport)window.visualViewport.addEventListener("resize",scheduleChartResize);
 function setPage(page){
@@ -722,7 +997,7 @@ function setStep(step,pct,title,msg){const order=["read","map","calc","render","
 function loadWorkbook(file){
   if(!file)return;
   if(!/\.(xlsx|xls)$/i.test(file.name)||file.size>=35*1024*1024){showToast("Unsupported file","Please choose an Excel workbook (.xlsx or .xls) smaller than 35 MB.","error");$("fileInput").value="";return}
-  stopLive(true);$("liveChip").hidden=true;
+  stopLive(true,"manual");$("liveChip").hidden=true;prevRanks.clear();rankAnimationTimers.forEach(clearTimeout);rankAnimationTimers=[];keyedRemovalTimers.forEach(clearTimeout);keyedRemovalTimers.clear();clearKeyedAnimations();avatarFadeTimers.forEach(clearTimeout);avatarFadeTimers.clear();chartFadeTimers.forEach(clearTimeout);chartFadeTimers.clear();document.querySelectorAll(".av-mood-old,.chart-transition-old").forEach(node=>node.remove());avatarCache.clear();document.querySelectorAll(".row-removing,.keyed-removing,.row-enter").forEach(node=>{node.classList.remove("row-removing","keyed-removing","row-enter");node.style.removeProperty("transform");node.style.removeProperty("transition")});["kTotal","kMonths","kTop3"].forEach(id=>{cancelAnimationFrame($(id)._raf);$(id)._raf=0});clearTimeout(kpiVizIntroTimer);kpiVizIntroTimer=null;if(live.renderFrame!==null){cancelAnimationFrame(live.renderFrame);live.renderFrame=null;live.renderRows=null}clearTimeout(chartResizeTimer);destroyAllCharts();document.querySelectorAll(".rank-up,.rank-down,.rank-new").forEach(row=>row.classList.remove("rank-up","rank-down","rank-new"));
   const reader=new FileReader();
   reader.onload=async e=>{
     $("loading").classList.add("show");
@@ -749,6 +1024,7 @@ function loadWorkbook(file){
 }
 
 setupUploadPeek();autoCollapseUpload();setupFilebarCollapse();
+setupLiveContentTargets();
 const topActions=document.querySelector(".top-actions");topActions.insertBefore($("changeFileBtn"),$("themeBtn"));topActions.insertBefore($("filtersBar"),$("themeBtn"));
 topActions.append($("filtersBar"),$("themeBtn"),$("liveChip"),$("changeFileBtn"));
 $("browseBtn").onclick=()=>$("fileInput").click();$("uploadTopBtn").onclick=()=>$("fileInput").click();$("fileInput").onchange=e=>loadWorkbook(e.target.files[0]);$("changeFileBtn").onclick=()=>$("fileInput").click();
@@ -756,27 +1032,24 @@ $("browseBtn").onclick=()=>$("fileInput").click();$("uploadTopBtn").onclick=()=>
 ["dragleave","drop"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault();$("dropzone").classList.remove("drag")}));
 $("dropzone").addEventListener("drop",e=>loadWorkbook(e.dataTransfer.files[0]));
 document.querySelectorAll(".page-btn").forEach(b=>b.onclick=()=>setPage(b.dataset.page));
-$("resetFilters").onclick=()=>{stopLive(true);["filterMonth","filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).value="All");syncFilterState();if(allRows.length)renderDashboard(getFilteredRows())};
-function setFiltersOpen(open){const wasOpen=$("filtersBar").classList.contains("is-open");$("filterToggle").setAttribute("aria-expanded",String(open));$("filtersBar").classList.toggle("is-open",open);$("filterControls").toggleAttribute("inert",!open);if(open)pauseLive();else if(wasOpen)scheduleLiveResume()}
+ $("resetFilters").onclick=()=>{stopLive(true,"filter");["filterMonth","filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).value="All");syncFilterState();updateLiveView();if(allRows.length)renderDashboard(getFilteredRows())};
+function setFiltersOpen(open){$("filterToggle").setAttribute("aria-expanded",String(open));$("filtersBar").classList.toggle("is-open",open);$("filterControls").toggleAttribute("inert",!open)}
 $("filterToggle").onclick=()=>setFiltersOpen($("filterToggle").getAttribute("aria-expanded")!=="true");
 document.addEventListener("pointerdown",event=>{if(!$("filtersBar").contains(event.target))setFiltersOpen(false)});
 document.addEventListener("keydown",event=>{if(event.key==="Escape")setFiltersOpen(false)});
 $("toastClose").onclick=()=>{clearTimeout(window._toast);clearTimeout(window._toastHide);$("toast").classList.remove("show","hide")};
-["filterMonth","filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).addEventListener("change",()=>{stopLive(true);syncFilterState();if(allRows.length>0)renderDashboard(getFilteredRows())}));
-$("liveToggle").onclick=()=>{if(!live.on){startLive();return}if(live.paused)resumeLive();else pauseLive()};
+["filterMonth","filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).addEventListener("change",()=>{stopLive(true,"filter");syncFilterState();if(allRows.length>0)renderDashboard(getFilteredRows())}));
+$("liveToggle").onclick=()=>{if(!live.on){startLive(false);return}if(live.paused)resumeLive();else pauseLive()};
 $("liveTimeline").addEventListener("click",event=>{
   const dot=event.target.closest(".live-dot");if(!dot||live.months.length<=1)return;
-  clearLiveTimer();clearTimeout(liveResumeTimer);liveResumeTimer=null;
-  live.on=true;live.paused=true;live.idx=Number(dot.dataset.step);live.remaining=live.idx<0?HOLD_ALL:HOLD_MONTH;
-  ["filterMonth","filterSub","filterInst","filterPhase","filterMeter"].forEach(id=>$(id).value="All");
-  $("filterMonth").value=live.idx<0?"All":live.months[live.idx];syncFilterState();
-  $("liveProgress").style.transitionDuration="0ms";$("liveProgress").style.width="0%";
-  markLiveStep();const page=$("operationsPage");page.classList.remove("live-swap");void page.offsetWidth;page.classList.add("live-swap");clearTimeout(live.swapTimer);live.swapTimer=setTimeout(()=>page.classList.remove("live-swap"),350);
-  renderDashboard(getFilteredRows());
+  live.on=true;live.driving=true;live.paused=false;live.state="running";
+  liveStep(Number(dot.dataset.step),true);
 });
-document.addEventListener("pointerover",event=>{if(event.target.closest(".panel,.kpi")){clearTimeout(liveResumeTimer);liveResumeTimer=null;pauseLive()}});
-document.addEventListener("pointerout",event=>{const card=event.target.closest(".panel,.kpi");if(card&&!card.contains(event.relatedTarget))scheduleLiveResume()});
-document.addEventListener("visibilitychange",()=>{if(document.hidden)pauseLive();else scheduleLiveResume()});
+document.documentElement.classList.toggle("is-hidden",document.hidden);document.addEventListener("visibilitychange",()=>{
+  document.documentElement.classList.toggle("is-hidden",document.hidden);
+  if(document.hidden&&live.on&&!live.paused){live.resumeAfterHidden=true;pauseLive();live.hiddenPaused=true}
+  else if(!document.hidden&&live.hiddenPaused){live.hiddenPaused=false;if(live.resumeAfterHidden){live.resumeAfterHidden=false;resumeLive()}}
+});
 setupSpotlight();setupTheme();
 </script>
 </body>
