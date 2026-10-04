@@ -90,7 +90,7 @@ html[data-theme=dark] .meta{background:rgba(15,29,42,.8)}
 .top-actions{display:flex;align-items:center;gap:0.125rem;flex-wrap:wrap;justify-content:flex-end}.top-actions .btn-sm{font-size:0.75rem;padding:0.5rem 0.75rem}
 .header-summary{display:flex;align-items:center;gap:0.75rem;justify-content:center}.head-stat{display:flex;align-items:center;gap:0.375rem;border-left:1px solid var(--border);padding-left:10px}.head-stat:first-child{border-left:0}.head-icon{width:2.375rem;height:2.375rem;border-radius:0.625rem;background:color-mix(in srgb,var(--blue) 10%,var(--surface2));display:grid;place-items:center;color:var(--blue);font-size:1.125rem}.head-stat small{display:block;color:var(--muted);font-size:0.6875rem;font-weight:800}.head-stat b{display:block;color:var(--text);font-family:var(--display);font-size:1.0625rem;font-weight:800;line-height:1.1}.head-stat em{display:block;color:var(--text2);font-size:0.71875rem;font-style:normal;margin-top:2px}
 .file-chip{display:flex;align-items:center;gap:0.4375rem;max-width:16.875rem;padding:0.4375rem 0.625rem;border:1px solid var(--border);background:var(--surface2);border-radius:62.4375rem;color:var(--text2);font-size:0.75rem}.file-chip strong{max-width:10.625rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}.file-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
-.filebar{padding:0.375rem 0;border-bottom:1px solid var(--border2);transition:max-height .45s ease,opacity .35s ease}.filebar-inner{display:flex;justify-content:space-between;align-items:center;gap:0.625rem;flex-wrap:wrap}.meta-row{display:flex;gap:1rem;flex-wrap:wrap}.meta-item{font-size:0.75rem;color:var(--text2)}.meta-item strong{color:var(--text)}
+.filebar{max-height:8rem;overflow:hidden;padding:0.375rem 0;border-bottom:1px solid var(--border2);transition:max-height .45s ease,padding .45s ease,opacity .35s ease}.filebar-inner{display:flex;justify-content:space-between;align-items:center;gap:0.625rem;flex-wrap:wrap;transition:transform .45s ease,opacity .35s ease}.filebar.is-collapsed{max-height:.35rem;padding-block:0;opacity:.65;cursor:pointer}.filebar.is-collapsed .filebar-inner{opacity:0;transform:translateY(-.5rem);pointer-events:none}.meta-row{display:flex;gap:1rem;flex-wrap:wrap}.meta-item{font-size:0.75rem;color:var(--text2)}.meta-item strong{color:var(--text)}
 .note{margin-top:8px;font-size:0.71875rem;color:var(--muted)}.mtd{font-size:0.6875rem;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--border);border-radius:6.1875rem;padding:0.0625rem 0.5rem}.heat-note{text-align:center}
 #headerMonths{display:block;max-width:14.375rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pages{display:flex;gap:0.4375rem;padding:0.625rem 0 0.125rem}.page-btn{border:1px solid var(--border);border-radius:0.5rem;padding:0.5rem 0.8125rem;background:var(--surface);color:var(--text2);font-size:0.65625rem;font-weight:900;transition:var(--transition)}.page-btn:hover{transform:translateY(-1px);border-color:var(--blue)}.page-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 5px 14px color-mix(in srgb,var(--blue) 22%,transparent)}
@@ -264,7 +264,7 @@ html[data-theme=dark] .theme-switch .knob{transform:translateX(1.5rem)}
         <div class="meta-row">
           <div class="meta-item">Rows: <strong id="dataRows">—</strong></div>
           <div class="meta-item">Unique installations: <strong id="dataUnique">—</strong></div>
-                    <div class="meta-item">Latest installation: <strong id="dataLatest">—</strong></div>
+          <div class="meta-item">Latest installation: <strong id="dataLatest">—</strong></div>
           <span class="fresh" id="fresh" data-age="stale" title="Processed locally"><i class="pulse"></i><span id="freshText"></span></span>
         </div>
       </div>
@@ -437,7 +437,7 @@ function renderDashboard(rows){
   $("distLegend").innerHTML=bins.map((x,i)=>{const m=x[0].match(/^(.*?)\s*\((.*)\)$/);const nm=m?m[1]:x[0],rg=m?m[2]:"";return `<div class="legend-row dist-row" data-index="${i}"><span class="dot" style="background:${dcol[i]}"></span><span class="dist-name"><b>${esc(nm)}</b><small>${esc(rg)}</small></span><b>${fmt(x[1])}</b><em>(${((x[1]/sumB)*100).toFixed(1)}%)</em></div>`}).join("");bindDonutLegend("distLegend","distribution");
   destroy("sub");charts.sub=new Chart($("subChart"),{type:"doughnut",data:{labels:c.subs.map(x=>x[0]),datasets:[{data:c.subs.map(x=>x[1]),backgroundColor:["#1267bd","#2bb7d6","#21a56e","#f29a15","#7b4bd0"],borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface"),borderWidth:0,borderRadius:6,spacing:2,hoverOffset:6}]},options:{cutout:"60%",responsive:true,maintainAspectRatio:false,animation:donutAnimation(),plugins:{legend:{position:"right",labels:{usePointStyle:true,pointStyle:"circle",boxWidth:8,boxHeight:8,padding:14,color:cssVar("--text2"),font:{size:fsz()-1,weight:"600"}}},tooltip:{...tipStyle(),callbacks:{label:x=>x.label+": "+fmt(x.raw)+" · "+((x.raw/total)*100).toFixed(1)+"% of total installations"}}}}});
   const topSub=c.subs[0]||["—",0],pd=c.peakDay[0]==="—"?"—":new Date(c.peakDay[0]+"T00:00:00Z").toLocaleDateString("en-IN",{day:"2-digit",month:"short",timeZone:"UTC"});
-  $("insights").innerHTML=`<li>Total installation count is <b>${fmt(c.total)}</b> across <b>${c.months.length}</b> active months.</li><li><b>${esc(monthLabel(c.peak[0]))}</b> is the peak month with <b>${fmt(c.peak[1])}</b> installations.</li><li><b>${esc(top[0])}</b> is the highest-volume performer with <b>${fmt(top[1])}</b> installations.</li><li>The top three contributors generated <b>${((c.top3/total)*100).toFixed(1)}%</b> of total installations.</li><li><b>${esc(topSub[0])}</b> has the highest sub-division installation count with <b>${fmt(topSub[1])}</b>.</li><li>Peak daily installations were <b>${fmt(c.peakDay[1])}</b> on <b>${pd}</b>.</li>${partialKey?`<li><b>${monthLabel(partialKey)}</b> is month-to-date (data through <b>${partialDate}</b>), so it is not compared with full months.</li>`:""}`;
+  $("insights").innerHTML=`<li>Total installation activity is <b>${fmt(c.total)}</b> across <b>${c.months.length}</b> active months.</li><li><b>${esc(monthLabel(c.peak[0]))}</b> is the peak month with <b>${fmt(c.peak[1])}</b> installations.</li><li><b>${esc(top[0])}</b> is the highest-volume performer with <b>${fmt(top[1])}</b> installations.</li><li>The top three contributors generated <b>${((c.top3/total)*100).toFixed(1)}%</b> of total installations.</li><li><b>${esc(topSub[0])}</b> has the highest sub-division installation count with <b>${fmt(topSub[1])}</b>.</li><li>Peak daily installations were <b>${fmt(c.peakDay[1])}</b> on <b>${pd}</b>.</li>${partialKey?`<li><b>${monthLabel(partialKey)}</b> is month-to-date (data through <b>${partialDate}</b>), so it is not compared with full months.</li>`:""}`;
   $("mom").style.setProperty("--n",c.months.length);$("mom").classList.toggle("mom--wrap",c.months.length>8);
   decorateInsights();
   $("mom").innerHTML=c.months.map((m,i)=>{const cur=c.mc[m],prev=i?c.mc[c.months[i-1]]:0,pct=i&&prev?((cur-prev)/prev*100):null,isPartial=m===partialKey;return `<div class="mom-card"><small>${monthTag(m)}</small><b>${fmt(cur)}</b>${isPartial?'<span class="mtd">MTD</span>':`<span class="${pct===null?"":pct>=0?"up":"down"}">${pct===null?"—":(pct>=0?"▲ ":"▼ ")+Math.abs(pct).toFixed(1)+"%"}</span>`}</div>`}).join("");
@@ -450,6 +450,7 @@ function setPage(page){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 let uploadCollapseTimer=null;
+let filebarCollapseTimer=null;
 function setupUploadPeek(){
   const card=document.querySelector(".upload-card");
   if(!card||card.dataset.peekBound==="true")return;
@@ -462,7 +463,9 @@ function autoCollapseUpload(){
   clearTimeout(uploadCollapseTimer);
   card.classList.remove("collapsed");
 }
-function showDashboard(){ $("landing").classList.add("hidden");$("dashboard").classList.remove("hidden");window.scrollTo(0,0)}
+function scheduleFilebarCollapse(){const bar=document.querySelector(".filebar");if(!bar)return;clearTimeout(filebarCollapseTimer);filebarCollapseTimer=setTimeout(()=>{if(!bar.matches(":hover"))bar.classList.add("is-collapsed")},2000)}
+function setupFilebarCollapse(){const bar=document.querySelector(".filebar");if(!bar||bar.dataset.collapseReady)return;bar.dataset.collapseReady="true";bar.addEventListener("pointerenter",()=>{clearTimeout(filebarCollapseTimer);bar.classList.remove("is-collapsed")});bar.addEventListener("pointerleave",()=>scheduleFilebarCollapse())}
+function showDashboard(){ $("landing").classList.add("hidden");$("dashboard").classList.remove("hidden");window.scrollTo(0,0);scheduleFilebarCollapse()}
 function showLanding(){ $("dashboard").classList.add("hidden");$("landing").classList.remove("hidden");window.scrollTo(0,0);autoCollapseUpload();}
 function clearAll(){allRows=[];dataEnd=null;partialKey=null;currentFileName="";$("fileChip").style.display="none";showLanding();showToast("Dashboard cleared","Load another workbook to begin again.")}
 const tick=()=>new Promise(r=>setTimeout(r,60));
@@ -495,7 +498,7 @@ function loadWorkbook(file){
   reader.readAsArrayBuffer(file);
 }
 
-setupUploadPeek();autoCollapseUpload();
+setupUploadPeek();autoCollapseUpload();setupFilebarCollapse();
 $("browseBtn").onclick=()=>$("fileInput").click();$("uploadTopBtn").onclick=()=>$("fileInput").click();$("fileInput").onchange=e=>loadWorkbook(e.target.files[0]);$("changeFileBtn").onclick=()=>$("fileInput").click();$("clearBtn").onclick=clearAll;
 ["dragenter","dragover"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault();$("dropzone").classList.add("drag")}));
 ["dragleave","drop"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault();$("dropzone").classList.remove("drag")}));
