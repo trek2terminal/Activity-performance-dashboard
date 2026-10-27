@@ -595,7 +595,7 @@ function setText(el,text,{flash=false}={}){if(!el)return false;text=String(text?
 const monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 let dataEnd=null,partialKey=null;
 let live={on:true,timer:null,idx:-1,paused:false,state:"running",driving:false,rendering:false,renderFrame:null,renderRows:null,tick:0,months:[],activeMonth:null,duration:0,started:0,remaining:0,renderAnimation:null,transitioning:false,transitionTimer:null,staggerTimers:[],transitionToken:0,renderStepToken:null,hiddenPaused:false,resumeAfterHidden:false};
-const HOLD_ALL=10000,HOLD_MONTH=9000,TRANS=1100,TRANSITION_TOTAL=1650,LIVE_EASING="easeInOutCubic";
+const HOLD_ALL=12000,HOLD_MONTH=12000,TRANS=1100,TRANSITION_TOTAL=1650,LIVE_EASING="easeInOutCubic";
 const chartFadeTimers=new Set();
 const keyedRemovalTimers=new Map();
 const valueFlashTimers=new Map();
