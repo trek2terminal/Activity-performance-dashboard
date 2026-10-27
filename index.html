@@ -382,6 +382,72 @@ html[data-theme=dark] #vizMonths .month-day-tick.is-empty{opacity:.5}
 .heat th{padding:.4rem .3rem}
 .heat .av{width:1.4rem;height:1.4rem}
 @media(min-width:1000px){.main-grid{height:clamp(23rem,calc(100vh - 17rem),36rem);align-items:stretch}.main-grid>.panel{min-height:0;overflow:hidden}.main-grid .chartbox{min-height:0}.lower-grid{max-height:36rem}.lower-grid>.panel{min-height:0}}
+.page-btn{padding:.6rem 1.15rem;font-size:.8rem;border-radius:.65rem}
+#pageDetail .reveal{animation-delay:0s!important}
+@media (min-width:1200px) and (min-height:600px){
+html:has(#dashboard:not(.hidden)){scrollbar-gutter:auto;overflow:hidden;height:100%}
+html:has(#dashboard:not(.hidden)) body{height:100%;overflow:hidden}
+#dashboard:not(.hidden){height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+#dashboard>.dashboard-wrap{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+#operationsPage{flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:.6rem 0 .4rem}
+#pageOverview:not(.hidden),#pageDetail:not(.hidden){flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+#operationsPage>.footer{flex:none;padding:.3rem .125rem 0}
+.kpis{flex:none}
+#pageOverview .main-grid{flex:1 1 0;height:auto;min-height:0}
+#pageDetail .lower-grid{flex:1.45 1 0;min-height:0;max-height:none;margin-top:0;grid-template-rows:minmax(0,1fr)}
+#pageDetail .bottom-grid{flex:1 1 0;min-height:0;height:auto;grid-template-rows:minmax(0,1fr)}
+.main-grid>.panel,.lower-grid>.panel,.bottom-grid>.panel,.bottom-grid>.insight{min-height:0;overflow:hidden}
+.lower-grid .donut-row .chartbox,.lower-grid .sub-row .chartbox,.bottom-grid .sub-row .chartbox,.bottom-grid .panel #paceBox,.insight{min-height:0}
+.lower-grid>.panel:first-child .table-fill{flex:1 1 0!important;min-height:0;overflow:auto}
+.summary-table td{padding:.4rem .75rem}
+.summary-table th{padding:.5rem .75rem}
+}
+@media (min-width:1200px) and (min-height:600px) and (max-height:800px){
+.panel{padding:.6rem .75rem}
+.panel-title{margin-bottom:.4rem}
+.kpi{padding:.45rem .8rem}
+.kpi-viz{height:1.6rem}
+.top-table td{padding:.2rem .4rem}
+.top-table tbody tr{height:auto}
+.top-table .av,.heat .av{width:1.1rem;height:1.1rem}
+.heat td{padding:.15rem .25rem}
+.heat th{padding:.25rem .25rem}
+.summary-table td{padding:.28rem .6rem}
+.summary-table th{padding:.35rem .6rem}
+.insight li{font-size:.75rem;line-height:1.3}
+.insight ul{gap:.3rem}
+.mom-card{padding:.4rem .25rem}
+}
+#pageDetail .insight{overflow:hidden;padding:.6rem .8rem;min-height:0}
+#pageDetail .insight .panel-title{flex:none;margin-bottom:.35rem}
+#pageDetail .insight ul{flex:1 1 0;min-height:0;overflow:hidden;gap:0;margin:0;padding:0;justify-content:space-between;scrollbar-width:none}
+#pageDetail .insight ul::-webkit-scrollbar{display:none}
+#pageDetail .insight li{flex:1 1 0;min-height:0;margin:0;align-items:center;grid-template-columns:clamp(1.1rem,3.2vh,1.6rem) minmax(0,1fr);gap:.5rem;font-size:clamp(.62rem,1.55vh,.84rem);line-height:1.25}
+#pageDetail .insight .insight-icon{width:clamp(1.1rem,3.2vh,1.6rem);height:clamp(1.1rem,3.2vh,1.6rem)}
+#pageDetail .insight .insight-icon svg{width:62%;height:62%}
+@media (max-width:1199px),(max-height:599px){
+#pageDetail .insight ul{overflow:visible;flex:0 0 auto}
+#pageDetail .insight li{flex:0 0 auto;margin:.3rem 0;font-size:.84rem}
+}
+@media (min-width:1200px) and (min-height:600px){
+#pageDetail .lower-grid>.panel:nth-child(2){overflow:hidden}
+#pageDetail .heat-wrap{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#pageDetail .heat{flex:1 1 auto;height:100%;min-width:0;table-layout:fixed;border-spacing:2px;font-size:clamp(.62rem,1.7vh,.95rem)}
+#pageDetail .heat th{padding:.1rem .2rem;font-size:clamp(.55rem,1.4vh,.75rem);line-height:1.1}
+#pageDetail .heat td{padding:0 .2rem;line-height:1.1;font-size:clamp(.6rem,1.6vh,.9rem)}
+#pageDetail .heat td.name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pageDetail .heat th:first-child,#pageDetail .heat td.name{width:34%}
+#pageDetail .heat .person-name{gap:.4rem}
+#pageDetail .heat .av{width:clamp(1rem,2.8vh,1.5rem);height:clamp(1rem,2.8vh,1.5rem)}
+#pageDetail .heat tbody tr{height:calc(100% / 10)}
+#pageDetail .scale{flex:none;height:.5rem;margin:.4rem 18% 0}
+#pageDetail .scale-label{flex:none;margin:.2rem 18% 0;font-size:clamp(.55rem,1.3vh,.7rem)}
+#pageDetail .heat-note{flex:none;margin-top:.2rem;font-size:clamp(.55rem,1.3vh,.7rem)}
+}
+@media (max-width:1199px),(max-height:599px){
+#pageDetail .heat-wrap{overflow:auto}
+#pageDetail .heat{min-width:32.5rem}
+}
 </style>
 </head>
 <body>
@@ -473,12 +539,14 @@ html[data-theme=dark] #vizMonths .month-day-tick.is-empty{opacity:.5}
       </div>
     </div>
 
-    <div class="pages" style="display:none">
-      <button class="page-btn active" data-page="operations">Operations Summary</button>
+    <div class="pages" role="tablist" aria-label="Dashboard pages">
+      <button class="page-btn active" data-page="operations" role="tab" aria-selected="true">Performance Overview</button>
+      <button class="page-btn" data-page="detail" role="tab" aria-selected="false">Detailed Analysis</button>
     </div>
 
     <div id="operationsPage" class="reference-page">
       <div class="filters-bar reveal" id="filtersBar"><button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterControls" title="Every filter recalculates the dashboard."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 7v5l-4 2v-7z"/></svg><span class="filter-toggle-label">Filters</span><span class="filter-count" id="filterCount" hidden></span><svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div class="filters-controls" id="filterControls" inert><select id="filterMonth" aria-label="Month"><option value="All">All Months</option></select><select id="filterSub" aria-label="Sub-Division"><option value="All">All Sub-Divisions</option></select><select id="filterInst" aria-label="Installer"><option value="All">All Installers</option></select><select id="filterPhase" aria-label="Phase"><option value="All">All Phases</option></select><select id="filterMeter" aria-label="Meter Type"><option value="All">All Meter Types</option></select><button class="btn btn-sm" id="resetFilters" type="button" disabled>Reset</button></div></div>
+      <div id="pageOverview">
       <div class="kpis">
         <div class="kpi blue reveal"><div class="ki"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="label">Total Installations</div><div class="value" id="kTotal">—</div><div class="sub" id="kUnique">—</div></div><div class="kpi-viz" aria-hidden="true" id="vizTotal"></div></div>
         <div class="kpi cyan reveal"><div class="ki"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="label" id="kMonthsL">Active Months</div><div class="value" id="kMonths">—</div><div class="sub" id="kMonthsSub">—</div></div><div class="kpi-viz" aria-hidden="true" id="vizMonths"></div></div>
@@ -493,6 +561,8 @@ html[data-theme=dark] #vizMonths .month-day-tick.is-empty{opacity:.5}
         <div class="panel top-panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4v2a4 4 0 0 0 4 4M17 6h3v2a4 4 0 0 1-4 4"/></svg></i>Top 10 Performers</div><div class="top-scroll"><table class="top-table"><thead><tr><th>#</th><th>Name</th><th>Total Installations</th><th>Contribution</th></tr></thead><tbody id="topBody"></tbody></table></div><div class="note" id="topNote" hidden></div></div>
       </div>
 
+      </div>
+      <div id="pageDetail" class="hidden">
       <div class="lower-grid">
         <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></i><span id="ttlSummary">Monthly Installation Summary</span></div><div class="table-fill" style="flex:0 0 auto;display:block"><table class="summary-table" style="width:100%"><thead><tr><th>Month</th><th>Installations</th><th>% of Total</th></tr></thead><tbody id="summaryBody"></tbody></table></div></div>
         <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></i>Individual Performance Heatmap</div><div class="heat-wrap"><table class="heat"><thead id="heatHead"></thead><tbody id="heatBody"></tbody></table></div><div class="scale"></div><div class="scale-label"><span>Low Installations</span><span>High Installations</span></div><div class="note heat-note" id="heatNote" hidden></div></div>
@@ -503,6 +573,7 @@ html[data-theme=dark] #vizMonths .month-day-tick.is-empty{opacity:.5}
         <div class="insight reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4M8 14c-1.2-1.1-2-2.7-2-4.5a6 6 0 1 1 12 0c0 1.8-.8 3.4-2 4.5-.7.7-1 1.3-1 2h-6c0-.7-.3-1.3-1-2Z"/></svg></i>Key Insights</div><ul id="insights"></ul></div>
         <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/></svg></i><span id="ttlMom">Month-on-Month Change</span></div><div class="mom" id="mom"></div><div class="chartbox" id="paceBox" hidden><canvas id="paceChart"></canvas></div><div class="note" id="paceCaption" hidden></div><div class="note" id="partialNote2" hidden></div></div>
         <div class="panel reveal"><div class="panel-title"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></i>Sub-Division Contribution</div><div class="donut-row sub-row"><div class="chartbox"><canvas id="subChart"></canvas></div><div id="subLegend" class="legend-grid"></div></div></div>
+      </div>
       </div>
       <div class="footer">BETTER INSIGHTS &nbsp; | &nbsp; SMARTER DECISIONS &nbsp; | &nbsp; GREATER IMPACT</div>
     </div>
@@ -1028,9 +1099,11 @@ function renderDashboardNow(rows){
 function scheduleChartResize(){clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{if(Math.round(rootPx())!==lastRenderedRoot&&allRows.length>0){if(live.transitioning)finishLiveTransition(live.transitionToken);chartRenderAnimation=0;live.renderAnimation=0;renderDashboard(getFilteredRows())}},150)}
 window.addEventListener("resize",scheduleChartResize);
 function setPage(page){
-  if(page!=="operations")return;
-  document.querySelectorAll(".page-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
-  $("operationsPage").classList.remove("hidden");
+  if(page!=="operations"&&page!=="detail")return;
+  document.querySelectorAll(".page-btn").forEach(b=>{const on=b.dataset.page===page;b.classList.toggle("active",on);b.setAttribute("aria-selected",String(on))});
+  $("pageOverview").classList.toggle("hidden",page!=="operations");
+  $("pageDetail").classList.toggle("hidden",page!=="detail");
+  requestAnimationFrame(()=>Object.values(charts).forEach(c=>c&&c.resize()));
   window.scrollTo({top:0,behavior:"smooth"});
 }
 let uploadCollapseTimer=null;
