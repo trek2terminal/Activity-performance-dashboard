@@ -448,6 +448,19 @@ html:has(#dashboard:not(.hidden)) body{height:100%;overflow:hidden}
 #pageDetail .heat-wrap{overflow:auto}
 #pageDetail .heat{min-width:32.5rem}
 }
+@media (min-width:1200px) and (min-height:600px){
+#pageDetail .lower-grid>.panel:first-child{overflow:hidden}
+#pageDetail .lower-grid>.panel:first-child .live-panel-content{min-height:0;overflow:hidden}
+#pageDetail .lower-grid>.panel:first-child .table-fill{flex:1 1 0!important;min-height:0;overflow:hidden;display:flex!important;flex-direction:column}
+#pageDetail .summary-table{flex:1 1 auto;height:100%!important;table-layout:fixed;font-size:clamp(.62rem,1.6vh,.85rem)}
+#pageDetail .summary-table th{padding:.15rem .5rem;font-size:clamp(.55rem,1.3vh,.7rem);line-height:1.1}
+#pageDetail .summary-table td{padding:0 .5rem;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pageDetail .summary-table th:first-child,#pageDetail .summary-table td:first-child{width:46%}
+#pageDetail .summary-table tbody tr{height:auto!important}
+}
+@media (max-width:1199px),(max-height:599px){
+#pageDetail .lower-grid>.panel:first-child{overflow:auto}
+}
 </style>
 </head>
 <body>
